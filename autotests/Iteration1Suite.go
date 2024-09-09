@@ -1,11 +1,11 @@
-package main
+package autotests
 
 import (
 	"context"
 	"os"
 	"time"
 
-	"github.com/GlebZigert/gofermart/internal/fork"
+	"github.com/GlebZigert/gophermart/internal/fork"
 
 	"github.com/stretchr/testify/suite"
 )
