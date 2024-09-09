@@ -1,0 +1,1 @@
+.\autotest.test.exe -binary-path =../cmd/gofermart/gofermart.exe
