@@ -13,19 +13,39 @@ import (
 )
 
 /*
-Сервис должен поддерживать конфигурирование следующими методами:
 
-	адрес и порт запуска сервиса: переменная окружения ОС RUN_ADDRESS или флаг -a;
+Хендлер: POST /api/user/register.
+Регистрация производится по паре логин/пароль. Каждый логин должен быть уникальным.
+После успешной регистрации должна происходить автоматическая аутентификация пользователя.
+Для передачи аутентификационных данных используйте механизм cookies или HTTP-заголовок Authorization.
+Формат запроса:
+
+POST /api/user/register HTTP/1.1
+Content-Type: application/json
+...
+
+{
+    "login": "<login>",
+    "password": "<password>"
+}
+
+Возможные коды ответа:
+
+    200 — пользователь успешно зарегистрирован и аутентифицирован;
+    400 — неверный формат запроса;
+    409 — логин уже занят;
+    500 — внутренняя ошибка сервера.
+
 */
 
-type TestFlagRunAddrSuite struct {
+type TestRegSuite struct {
 	suite.Suite
 	serverAddress string
 	serverProcess *fork.BackgroundProcess
 }
 
-func (suite *TestFlagRunAddrSuite) SetupSuite() {
-	suite.T().Logf("TestFlagRunAddrSuite SetupSuite")
+func (suite *TestRegSuite) SetupSuite() {
+	suite.T().Logf("TestEnvRunAddrSuite SetupSuite")
 	suite.Require().NotEmpty(flagTargetBinaryPath, "-binary-path non-empty flag required")
 	suite.Require().NotEmpty(flagServerPort, "-server-port non-empty flag required")
 
@@ -35,14 +55,11 @@ func (suite *TestFlagRunAddrSuite) SetupSuite() {
 	// запускаем процесс тестируемого сервера
 	{
 
-		args := []string{
-			"-a=" + suite.serverAddress,
-		}
-
-		envs := os.Environ()
+		envs := append(os.Environ(), []string{
+			"RUN_ADDR=" + suite.serverAddress,
+		}...)
 		p := fork.NewBackgroundProcess(context.Background(), flagTargetBinaryPath,
 			fork.WithEnv(envs...),
-			fork.WithArgs(args...),
 		)
 
 		suite.serverProcess = p
@@ -83,7 +100,7 @@ func (suite *TestFlagRunAddrSuite) SetupSuite() {
 }
 
 // TearDownSuite высвобождает имеющиеся зависимости
-func (suite *TestFlagRunAddrSuite) TearDownSuite() {
+func (suite *TestRegSuite) TearDownSuite() {
 	// посылаем процессу сигналы для остановки
 	exitCode, err := suite.serverProcess.Stop(syscall.SIGINT, syscall.SIGKILL)
 	if err != nil {
@@ -113,7 +130,7 @@ func (suite *TestFlagRunAddrSuite) TearDownSuite() {
 	}
 }
 
-func (suite *TestFlagRunAddrSuite) TestHandlers() {
+func (suite *TestRegSuite) TestHandlers() {
 	// генерируем новый псевдорандомный URL
 	//suite.T().Logf("just2")
 

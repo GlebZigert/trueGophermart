@@ -12,7 +12,12 @@ import (
 	"github.com/stretchr/testify/suite"
 )
 
-// Iteration1Suite является сьютом с тестами и состоянием для инкремента
+/*
+Сервис должен поддерживать конфигурирование следующими методами:
+
+	адрес и порт запуска сервиса: переменная окружения ОС RUN_ADDRESS или флаг -a;
+*/
+
 type TestEnvRunAddrSuite struct {
 	suite.Suite
 	serverAddress string
@@ -24,7 +29,7 @@ func (suite *TestEnvRunAddrSuite) SetupSuite() {
 	suite.Require().NotEmpty(flagTargetBinaryPath, "-binary-path non-empty flag required")
 	suite.Require().NotEmpty(flagServerPort, "-server-port non-empty flag required")
 
-	// прихраниваем адрес сервера
+	// приравниваем адрес сервера
 	suite.serverAddress = "localhost:" + flagServerPort
 
 	// запускаем процесс тестируемого сервера
