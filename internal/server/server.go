@@ -3,6 +3,7 @@ package server
 import (
 	"net/http"
 
+	"github.com/GlebZigert/gophermart/internal/config"
 	"github.com/go-chi/chi"
 )
 
@@ -14,5 +15,5 @@ func InitRouter() {
 		w.Write([]byte("Hello World!"))
 	})
 
-	http.ListenAndServe("localhost:8081", r)
+	http.ListenAndServe(config.RunAddr, r)
 }
