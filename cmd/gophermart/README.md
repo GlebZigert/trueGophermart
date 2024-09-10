@@ -5,7 +5,7 @@
 
 Билд автотеста:
 
-go test .\autotests\main_test.go .\autotests\Iteration1Suite.go .\autotests\flags.go -c -o=./
+go test .\autotests\main_test.go .\autotests\TestFlagRunAddrSuite.go .\autotests\TestEnvRunAddrSuite.go .\autotests\TestRegSuite.go .\autotests\flags.go -c -o=./
 
 Билд целевого сервера:
 
@@ -13,4 +13,4 @@ go build .\cmd\gophermart\main.go
 
 Запуск автотеста:
 
-autotests.test.exe -binary-path=main.exe 
+.\autotests.test.exe -binary-path=C:\gophermart\main.exe 
