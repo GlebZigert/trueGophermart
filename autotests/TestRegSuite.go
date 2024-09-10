@@ -3,11 +3,13 @@ package autotests
 import (
 	"context"
 	"errors"
+	"net/http"
 	"os"
 	"syscall"
 	"time"
 
 	"github.com/GlebZigert/gophermart/internal/fork"
+	"github.com/go-resty/resty/v2"
 
 	"github.com/stretchr/testify/suite"
 )
@@ -50,7 +52,7 @@ func (suite *TestRegSuite) SetupSuite() {
 	suite.Require().NotEmpty(flagServerPort, "-server-port non-empty flag required")
 
 	// приравниваем адрес сервера
-	suite.serverAddress = "localhost:" + flagServerPort
+	suite.serverAddress = "127.0.0.1:" + flagServerPort
 
 	// запускаем процесс тестируемого сервера
 	{
@@ -130,8 +132,34 @@ func (suite *TestRegSuite) TearDownSuite() {
 	}
 }
 
-func (suite *TestRegSuite) TestHandlers() {
-	// генерируем новый псевдорандомный URL
-	//suite.T().Logf("just2")
+func (suite *TestRegSuite) TestHandler() {
+	//послать запрос
 
+	// создаем HTTP клиент без поддержки редиректов
+	errRedirectBlocked := errors.New("HTTP redirect blocked")
+	redirPolicy := resty.RedirectPolicyFunc(func(_ *http.Request, _ []*http.Request) error {
+		return errRedirectBlocked
+	})
+
+	httpc := resty.New().
+		SetBaseURL("http://" + suite.serverAddress).
+		SetRedirectPolicy(redirPolicy)
+
+	suite.Run("shorten", func() {
+		// весь тест должен проходить менее чем за 10 секунд
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		defer cancel()
+
+		// делаем запрос к серверу для сокращения URL
+		req := httpc.R().
+			SetContext(ctx)
+
+		_, err := req.Get("/api/user/register")
+
+		noRespErr := suite.Assert().NoError(err, "Ошибка при попытке сделать запрос")
+
+		if !noRespErr {
+			suite.T().Errorf(err.Error())
+		}
+	})
 }
