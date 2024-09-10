@@ -15,7 +15,18 @@ func TestMain(m *testing.M) {
 	os.Exit(m.Run())
 }
 
-func TestIteration1(t *testing.T) {
+/*
+Сервис должен поддерживать конфигурирование следующими методами:
+
+	адрес и порт запуска сервиса: переменная окружения ОС RUN_ADDRESS или флаг -a;
+*/
+
+func TestFlagRunAddr(t *testing.T) {
 	// Запускает тест-сьют для первой итерации
-	suite.Run(t, new(Iteration1Suite))
+	suite.Run(t, new(TestFlagRunAddrSuite))
+}
+
+func TestEnvRunAddr(t *testing.T) {
+	// Запускает тест-сьют для первой итерации
+	suite.Run(t, new(TestEnvRunAddrSuite))
 }
