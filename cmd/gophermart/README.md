@@ -10,7 +10,9 @@ go test .\autotests\main_test.go .\autotests\TestFlagRunAddrSuite.go .\autotests
 Билд целевого сервера:
 
 go build .\cmd\gophermart\main.go 
+go1.20.7 build cmd/gophermart/main.go 
 
 Запуск автотеста:
 
 .\autotests.test.exe -binary-path=C:\gophermart\main.exe 
+
