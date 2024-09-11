@@ -5,6 +5,8 @@ import (
 	"database/sql"
 	"time"
 
+	_ "github.com/jackc/pgx/v5/stdlib"
+
 	"github.com/GlebZigert/gophermart/internal/config"
 )
 
