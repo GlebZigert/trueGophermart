@@ -8,7 +8,7 @@ import (
 var (
 	RunAddr      string
 	FlagLogLevel string
-	DatabaseDSN string
+	DatabaseDSN  string
 )
 
 func ParseFlags() {
@@ -21,7 +21,7 @@ func ParseFlags() {
 		RunAddr = envRunAddr
 	}
 
-	if envDatabaseDSN := os.Getenv("DATABASE_URI"); DatabaseDSN != "" {
+	if envDatabaseDSN := os.Getenv("DATABASE_URI"); envDatabaseDSN != "" {
 		DatabaseDSN = envDatabaseDSN
 	}
 }

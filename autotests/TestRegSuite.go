@@ -47,7 +47,7 @@ type TestRegSuite struct {
 }
 
 func (suite *TestRegSuite) SetupSuite() {
-	suite.T().Logf("TestEnvRunAddrSuite SetupSuite")
+	suite.T().Logf("TestEnvSuite SetupSuite")
 	suite.Require().NotEmpty(flagTargetBinaryPath, "-binary-path non-empty flag required")
 	suite.Require().NotEmpty(flagServerPort, "-server-port non-empty flag required")
 
