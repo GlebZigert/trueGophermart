@@ -5,11 +5,13 @@ import (
 	"net/http"
 
 	"github.com/GlebZigert/gophermart/internal/config"
+	"github.com/GlebZigert/gophermart/internal/logger"
 	"github.com/go-chi/chi"
+	"go.uber.org/zap"
 )
 
 func InitRouter() {
-	fmt.Println("starting on address ", config.RunAddr)
+	logger.Log.Info("Running server", zap.String("address", config.RunAddr))
 	r := chi.NewRouter()
 
 	r.Get("/*", func(w http.ResponseWriter, r *http.Request) {
@@ -19,6 +21,6 @@ func InitRouter() {
 
 	err := http.ListenAndServe(config.RunAddr, r)
 	if err != nil {
-		fmt.Println(err.Error())
+		logger.Log.Error("ListenAndServe", zap.String("err", err.Error()))
 	}
 }
