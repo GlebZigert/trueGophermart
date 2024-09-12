@@ -203,7 +203,6 @@ func (suite *TestRegSuite) TestHandler() {
 		resp, err = req.Post("/api/user/register")
 
 		//Должны получить ответ со статусом 200 — пользователь успешно зарегистрирован и аутентифицирован;
-		//В ответе должен быть HTTP-заголовок Authorization
 
 		noRespErr = suite.Assert().NoError(err, "Ошибка при попытке сделать запрос")
 
@@ -214,5 +213,10 @@ func (suite *TestRegSuite) TestHandler() {
 		suite.Assert().Equalf(http.StatusOK, resp.StatusCode(),
 			"Несоответствие статус кода ответа ожидаемому в хендлере '%s %s'", req.Method, req.URL)
 
+		//В ответе должен быть HTTP-заголовок Authorization
+		authHeader := resp.Header().Get("Authorization")
+		setCookieHeader := resp.Header().Get("Set-Cookie")
+		suite.Assert().True(authHeader != "" || setCookieHeader != "",
+			"Не удалось обнаружить авторизационные данные в ответе")
 	})
 }

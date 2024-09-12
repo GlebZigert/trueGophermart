@@ -5,6 +5,7 @@ import (
 	"io"
 	"net/http"
 
+	"github.com/GlebZigert/gophermart/internal/auth"
 	"github.com/GlebZigert/gophermart/internal/packerr"
 	"github.com/GlebZigert/gophermart/internal/users"
 )
@@ -22,14 +23,19 @@ func Register(w http.ResponseWriter, req *http.Request) {
 		return //err
 	}
 
-	if err := json.Unmarshal(body, &user); err != nil {
+	if err = json.Unmarshal(body, &user); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte{})
 		return // err
 	}
 
-	//если пришла правильная посылка - возвращаю 200
+	//если пришла правильная посылка
+
+	jwt, _ := auth.BuildJWTString()
+	//добавляю ключ
+	w.Header().Add("Authorization", string(jwt))
+	//ставлю статус 200
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte{})
 }

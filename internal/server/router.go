@@ -15,11 +15,16 @@ func InitRouter() {
 	r := chi.NewRouter()
 
 	r.Group(func(r chi.Router) {
-		r.Use(middleware.Auth)
-		r.Get("/api/user/orders", OrdersGet)
-	})
+		r.Use(middleware.ErrHandler)
+		r.Use(middleware.Log)
 
-	r.Post("/api/user/register", Register)
+		r.Group(func(r chi.Router) {
+			r.Use(middleware.Auth)
+			r.Get("/api/user/orders", OrdersGet)
+		})
+
+		r.Post("/api/user/register", Register)
+	})
 
 	err := http.ListenAndServe(config.RunAddr, r)
 	if err != nil {
