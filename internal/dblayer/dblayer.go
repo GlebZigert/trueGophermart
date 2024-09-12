@@ -3,6 +3,7 @@ package dblayer
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"time"
 
 	_ "github.com/jackc/pgx/v5/stdlib"
@@ -23,6 +24,7 @@ type DBLayer struct {
 
 func Init() (err error) {
 
+	fmt.Println("config.DatabaseDSN: ", config.DatabaseDSN)
 	database, err := sql.Open("pgx", config.DatabaseDSN)
 	if nil != err {
 		return

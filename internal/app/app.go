@@ -10,6 +10,7 @@ import (
 
 func Run() error {
 	config.ParseFlags()
+
 	err := dblayer.Init()
 	if err != nil {
 		fmt.Println("err: ", err.Error())
