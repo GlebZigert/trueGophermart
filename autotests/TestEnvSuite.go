@@ -29,7 +29,7 @@ func (suite *TestEnvSuite) SetupSuite() {
 	suite.T().Logf("TestEnvSuite SetupSuite")
 	suite.Require().NotEmpty(flagTargetBinaryPath, "-binary-path non-empty flag required")
 	suite.Require().NotEmpty(flagServerPort, "-server-port non-empty flag required")
-
+	suite.Require().NotEmpty(flagGophermartDatabaseURI, "-gophermart-database-uri non-empty flag required")
 	// приравниваем адрес сервера
 	suite.serverAddress = "localhost:" + flagServerPort
 
@@ -38,6 +38,7 @@ func (suite *TestEnvSuite) SetupSuite() {
 
 		envs := append(os.Environ(), []string{
 			"RUN_ADDR=" + suite.serverAddress,
+			"DATABASE_URI=" + flagGophermartDatabaseURI,
 		}...)
 		p := fork.NewBackgroundProcess(context.Background(), flagTargetBinaryPath,
 			fork.WithEnv(envs...),

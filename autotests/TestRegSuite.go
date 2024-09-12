@@ -47,7 +47,7 @@ type TestRegSuite struct {
 }
 
 func (suite *TestRegSuite) SetupSuite() {
-	suite.T().Logf("TestEnvSuite SetupSuite")
+	suite.T().Logf("TestEnvRunAddrSuite SetupSuite")
 	suite.Require().NotEmpty(flagTargetBinaryPath, "-binary-path non-empty flag required")
 	suite.Require().NotEmpty(flagServerPort, "-server-port non-empty flag required")
 
@@ -59,6 +59,7 @@ func (suite *TestRegSuite) SetupSuite() {
 
 		envs := append(os.Environ(), []string{
 			"RUN_ADDR=" + suite.serverAddress,
+			
 		}...)
 		p := fork.NewBackgroundProcess(context.Background(), flagTargetBinaryPath,
 			fork.WithEnv(envs...),
