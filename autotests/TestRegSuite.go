@@ -142,11 +142,6 @@ func (suite *TestRegSuite) TestHandler() {
 		return errRedirectBlocked
 	})
 
-	m := []byte(`{
-		"login": "user1",
-		"password": "password1"
-	}`)
-
 	httpc := resty.New().
 		SetBaseURL("http://" + suite.serverAddress).
 		SetRedirectPolicy(redirPolicy)
@@ -160,7 +155,6 @@ func (suite *TestRegSuite) TestHandler() {
 		suite.T().Logf("Шлю запрос GET orders - без авторизации. Должен прийти ответ со статусом StatusUnauthorized")
 		req := httpc.R().
 			SetHeader("Content-Type", "application/json").
-			SetBody(m).
 			SetContext(ctx)
 		//я должен получить ответ
 		//провожу роверку на наличие ответа
@@ -175,22 +169,31 @@ func (suite *TestRegSuite) TestHandler() {
 			"Несоответствие статус кода ответа ожидаемому в хендлере '%s %s'", req.Method, req.URL)
 
 		/*
-			// делаем запрос на регистрацию
-			req := httpc.R().
-				SetHeader("Content-Type", "application/json").
-				SetBody(m).
-				SetContext(ctx)
-
-			resp, err := req.Get("/api/user/register")
-
-			//Должны получить ответ со статусом 200 — пользователь успешно зарегистрирован и аутентифицирован;
-			//В ответе должен быть HTTP-заголовок Authorization
-
-			noRespErr := suite.Assert().NoError(err, "Ошибка при попытке сделать запрос")
-
-			if !noRespErr {
-				suite.T().Errorf(err.Error())
-			}
+			m := []byte(`{
+					"login": "user1",
+					"password": "password1"
+				}`)
 		*/
+
+		// делаем запрос на регистрацию без нормальной посылки - должен быть ответ со статусом 400 - неверный формат запроса
+		req = httpc.R().
+			SetHeader("Content-Type", "application/json").
+			//	SetBody(m).
+			SetContext(ctx)
+
+		resp, err = req.Post("/api/user/register")
+
+		//Должны получить ответ со статусом 200 — пользователь успешно зарегистрирован и аутентифицирован;
+		//В ответе должен быть HTTP-заголовок Authorization
+
+		noRespErr = suite.Assert().NoError(err, "Ошибка при попытке сделать запрос")
+
+		if !noRespErr {
+			suite.T().Errorf(err.Error())
+		}
+
+		suite.Assert().Equalf(http.StatusBadRequest, resp.StatusCode(),
+			"Несоответствие статус кода ответа ожидаемому в хендлере '%s %s'", req.Method, req.URL)
+
 	})
 }
