@@ -17,12 +17,12 @@ func TestMain(m *testing.M) {
 
 func TestFlagRunAddr(t *testing.T) {
 	// Запускает тест-сьют для первой итерации
-	suite.Run(t, new(TestFlagRunAddrSuite))
+	suite.Run(t, new(TestFlagSuite))
 }
 
 func TestEnvRunAddr(t *testing.T) {
 	// Запускает тест-сьют для первой итерации
-	suite.Run(t, new(TestEnvRunAddrSuite))
+	suite.Run(t, new(TestEnvSuite))
 }
 
 func TestReg(t *testing.T) {

@@ -7,8 +7,10 @@ import (
 	"time"
 
 	_ "github.com/jackc/pgx/v5/stdlib"
+	"go.uber.org/zap"
 
 	"github.com/GlebZigert/gophermart/internal/config"
+	"github.com/GlebZigert/gophermart/internal/logger"
 )
 
 const (
@@ -23,17 +25,19 @@ type DBLayer struct {
 }
 
 func Init() (err error) {
-
-	fmt.Println("config.DatabaseDSN: ", config.DatabaseDSN)
+	logger.Log.Info("config.DatabaseDSN: ", zap.String("config.DatabaseDSN", config.DatabaseDSN))
 	database, err := sql.Open("pgx", config.DatabaseDSN)
 	if nil != err {
+		logger.Log.Error("sql.Open: ", zap.String("", err.Error()))
+
 		return
 	}
 
 	ctx, _ := context.WithTimeout(context.TODO(), 1*time.Second)
 	err = database.PingContext(ctx)
 
-	if nil != err {
+	if err != nil {
+		logger.Log.Error("database.PingContext: ", zap.String("", err.Error()))
 		database.Close()
 		return
 	}
@@ -42,6 +46,7 @@ func Init() (err error) {
 
 	err = dbl.MakeTables(tables, true)
 	if nil != err {
+		logger.Log.Error("dbl.MakeTables: ", zap.String("", err.Error()))
 		dbl.Close()
 		return
 	}

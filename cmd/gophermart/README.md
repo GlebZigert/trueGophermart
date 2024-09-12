@@ -5,7 +5,7 @@
 
 Билд автотеста:
 
-go test .\autotests\main_test.go .\autotests\TestFlagRunAddrSuite.go .\autotests\TestEnvRunAddrSuite.go .\autotests\TestRegSuite.go .\autotests\flags.go -c -o=./
+go test .\autotests\main_test.go .\autotests\TestFlagSuite.go .\autotests\TestEnvSuite.go .\autotests\TestRegSuite.go .\autotests\flags.go -c -o=./
 
 Билд целевого сервера:
 
@@ -14,5 +14,14 @@ go1.20.7 build cmd/gophermart/main.go
 
 Запуск автотеста:
 
-.\autotests.test.exe -binary-path=C:\gophermart\main.exe 
+.\autotests.test.exe -binary-path=C:\gophermart\main.exe -server-port=8080 -gophermart-database-uri="host=localhost user=postgres password=qwer dbname=testdb sslmode=disable"
 
+Запуск сервера
+./main.exe -d="host=localhost user=postgres password=qwer dbname=testdb sslmode=disable"
+
+Установка системной переменной в терминале
+set DATABASE_URI=host=localhost user=postgres password=qwer dbname=testdb sslmode=disable
+
+Автотест из трушного бинарника
+
+ C:\go-autotests-0.10.14\go-autotests-0.10.14\gophermarttest-windows-amd64.exe -gophermart-binary-path=C:\gophermart\main.exe -gophermart-database-uri="host=localhost user=postgres password=qwer dbname=testdb sslmode=disable" -gophermart-host=localhost -gophermart-port=8081 -accrual-binary-path=.\accrual_windows_amd64 -accrual-database-uri="host=localhost user=postgres password=qwer dbname=testdb sslmode=disable" -accrual-host=localhost -accrual-port=8082

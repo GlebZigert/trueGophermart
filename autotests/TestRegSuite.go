@@ -59,6 +59,7 @@ func (suite *TestRegSuite) SetupSuite() {
 
 		envs := append(os.Environ(), []string{
 			"RUN_ADDR=" + suite.serverAddress,
+			
 		}...)
 		p := fork.NewBackgroundProcess(context.Background(), flagTargetBinaryPath,
 			fork.WithEnv(envs...),

@@ -15,34 +15,33 @@ import (
 /*
 Сервис должен поддерживать конфигурирование следующими методами:
 
-	адрес и порт запуска сервиса: переменная окружения ОС RUN_ADDRESS или флаг -a;
+    адрес и порт запуска сервиса: переменная окружения ОС RUN_ADDRESS или флаг -a;
+    адрес подключения к базе данных: переменная окружения ОС DATABASE_URI или флаг -d;
 */
 
-type TestFlagRunAddrSuite struct {
+type TestEnvSuite struct {
 	suite.Suite
 	serverAddress string
 	serverProcess *fork.BackgroundProcess
 }
 
-func (suite *TestFlagRunAddrSuite) SetupSuite() {
-	suite.T().Logf("TestFlagRunAddrSuite SetupSuite")
+func (suite *TestEnvSuite) SetupSuite() {
+	suite.T().Logf("TestEnvSuite SetupSuite")
 	suite.Require().NotEmpty(flagTargetBinaryPath, "-binary-path non-empty flag required")
 	suite.Require().NotEmpty(flagServerPort, "-server-port non-empty flag required")
-
+	suite.Require().NotEmpty(flagGophermartDatabaseURI, "-gophermart-database-uri non-empty flag required")
 	// приравниваем адрес сервера
 	suite.serverAddress = "localhost:" + flagServerPort
 
 	// запускаем процесс тестируемого сервера
 	{
 
-		args := []string{
-			"-a=" + suite.serverAddress,
-		}
-
-		envs := os.Environ()
+		envs := append(os.Environ(), []string{
+			"RUN_ADDR=" + suite.serverAddress,
+			"DATABASE_URI=" + flagGophermartDatabaseURI,
+		}...)
 		p := fork.NewBackgroundProcess(context.Background(), flagTargetBinaryPath,
 			fork.WithEnv(envs...),
-			fork.WithArgs(args...),
 		)
 
 		suite.serverProcess = p
@@ -83,7 +82,7 @@ func (suite *TestFlagRunAddrSuite) SetupSuite() {
 }
 
 // TearDownSuite высвобождает имеющиеся зависимости
-func (suite *TestFlagRunAddrSuite) TearDownSuite() {
+func (suite *TestEnvSuite) TearDownSuite() {
 	// посылаем процессу сигналы для остановки
 	exitCode, err := suite.serverProcess.Stop(syscall.SIGINT, syscall.SIGKILL)
 	if err != nil {
@@ -113,7 +112,7 @@ func (suite *TestFlagRunAddrSuite) TearDownSuite() {
 	}
 }
 
-func (suite *TestFlagRunAddrSuite) TestHandlers() {
+func (suite *TestEnvSuite) TestHandlers() {
 	// генерируем новый псевдорандомный URL
 	//suite.T().Logf("just2")
 
