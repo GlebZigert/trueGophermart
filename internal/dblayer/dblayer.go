@@ -165,7 +165,7 @@ func (qud *QUD) get(tx *sql.Tx, hint string, mymap Fields, limits ...int64) (res
 		} else if strings.ContainsRune(k, '.') {
 			keys += strings.Replace(k, ".", ".`", 1) + "`"
 		} else {
-			keys += "`" + k + "`"
+			keys += "" + k + ""
 		}
 
 		values[i] = v

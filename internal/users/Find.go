@@ -19,7 +19,7 @@ func Find(login string) (*User, error) {
 		"password": &wanted.Password,
 	}
 
-	rows, values, err := dblayer.Table("users").Seek("login = ?", login).Get(nil, fields)
+	rows, values, err := dblayer.Table("users").Seek("login = $1", login).Get(nil, fields)
 
 	defer rows.Close()
 
@@ -36,11 +36,13 @@ func Find(login string) (*User, error) {
 	for rows.Next() {
 		err = rows.Scan(values...)
 		if nil != err {
+			logger.Log.Error("rows.Scan: ", zap.String("", err.Error()))
 			break
 		}
+		logger.Log.Info("row: ", zap.String("wanted.Login", wanted.Login), zap.String("wanted.Password", wanted.Password))
 		return &wanted, nil
 	}
 
-	return nil, nil
+	return nil, FoundNoUser
 
 }
