@@ -104,10 +104,12 @@ func (suite *TestRegSuite) SetupSuite() {
 
 // TearDownSuite высвобождает имеющиеся зависимости
 func (suite *TestRegSuite) TearDownSuite() {
+
 	// посылаем процессу сигналы для остановки
 	exitCode, err := suite.serverProcess.Stop(syscall.SIGINT, syscall.SIGKILL)
 	if err != nil {
 		if errors.Is(err, os.ErrProcessDone) {
+			suite.T().Logf("errors.Is(err, os.ErrProcessDone): %s", err)
 			return
 		}
 		suite.T().Logf("Не удалось остановить процесс с помощью сигнала ОС: %s", err)
@@ -232,5 +234,26 @@ func (suite *TestRegSuite) TestHandler() {
 		suite.Assert().Equalf(http.StatusConflict, resp.StatusCode(),
 			"Несоответствие статус кода ответа ожидаемому в хендлере '%s %s'", req.Method, req.URL)
 		//
+
+		// шлем запрос  получение списка загруженных пользователем номеров заказов - без ключа авторизации
+		suite.T().Logf("Шлю запрос GET orders - теперь с авторизацией. Должен прийти ответ со статусом StatusOk")
+		req = httpc.R().
+			SetHeader("Authorization", authHeader).
+			SetContext(ctx)
+		// я должен получить ответ
+		// провожу роверку на наличие ответа
+		resp, err = req.Get("/api/user/orders")
+		noRespErr = suite.Assert().NoError(err, "Ошибка при попытке сделать запрос")
+		if !noRespErr {
+			suite.T().Errorf(err.Error())
+		}
+		// я должен получить ответ со статусом StatusUnauthorized о том что запрос не обработан из за отсутствия валидного ключа авторизации
+		// //провожу роверку на наличие статуса StatusUnauthorized
+
+		StatusUnauthorized := suite.Assert().NotEqualf(http.StatusUnauthorized, resp.StatusCode(), "")
+		if !StatusUnauthorized {
+			suite.T().Fatalf("Неавторизован")
+		}
+
 	})
 }
