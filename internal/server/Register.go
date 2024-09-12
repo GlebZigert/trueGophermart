@@ -47,6 +47,13 @@ func Register(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	if err = users.Save(user.Login, user.Password); err != nil {
+		err = Conflict
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte{})
+		return
+	}
+
 	jwt, _ := auth.BuildJWTString()
 	//добавляю ключ
 	w.Header().Add("Authorization", string(jwt))

@@ -3,6 +3,7 @@ package dblayer
 import (
 	"context"
 	"database/sql"
+	"strconv"
 	"strings"
 
 	"time"
@@ -100,6 +101,7 @@ func (qud *QUD) Seek(args ...interface{}) *QUD {
 	}
 
 	for pos, arg := range args {
+		logger.Log.Info("arg: ", zap.Any("", arg))
 		switch v := arg.(type) {
 		case string:
 			if 0 == pos {
@@ -202,6 +204,70 @@ func (qud *QUD) get(tx *sql.Tx, hint string, mymap Fields, limits ...int64) (res
 	qud.reset()
 
 	return res, values, err
+}
+
+func (qud *QUD) Save(tx *sql.Tx, fields Fields) (err error) {
+	var pId *int64
+	tmp, ok := fields["id"]
+	if ok {
+		pId = tmp.(*int64)
+	}
+	if !ok { // new WITHOUT id field
+		_, err = qud.Insert(tx, fields)
+	} else if 0 == *pId { // new WITH id
+		delete(fields, "id")
+		*pId, err = qud.Insert(tx, fields)
+	}
+	//qud.reset()
+	return
+}
+
+func inc(v *int) string {
+	r := *v
+	*v = *v + 1
+	return strconv.Itoa(r)
+}
+
+func (qud *QUD) Insert(tx *sql.Tx, fields Fields) (id int64, err error) {
+	//keys, values := fieldsMap(fields)
+	cnt := 1
+	keys := ""
+	values := make([]interface{}, len(fields))
+
+	i := 0
+	for k, v := range fields {
+		if "" != keys {
+			keys += ", "
+		}
+		keys += k
+		logger.Log.Info("field: ", zap.Any("", v))
+		values[i] = v
+		i++
+	}
+
+	q := "INSERT INTO " + qud.table + " (" + keys + ") VALUES ($" + inc(&cnt) + strings.Repeat(", $"+inc(&cnt), len(values)-1) + ")"
+
+	logger.Log.Info("query: ", zap.String("", q))
+	//var res sql.Result
+	qud.params = values
+	_, err = qud.execQuery(tx, q)
+
+	/*
+		if nil == err {
+			id, err = res.LastInsertId()
+		}
+	*/
+
+	return
+}
+
+func (qud *QUD) execQuery(tx *sql.Tx, q string) (sql.Result, error) {
+	if nil == tx {
+		ctx, _ := context.WithTimeout(context.TODO(), qud.timeout)
+		return qud.db.ExecContext(ctx, q, qud.params...)
+	} else {
+		return tx.Exec(q, qud.params...)
+	}
 }
 
 // all calls shoud be chained .Table().Seek().Get(nil, )
