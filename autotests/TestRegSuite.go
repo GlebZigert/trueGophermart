@@ -50,7 +50,7 @@ func (suite *TestRegSuite) SetupSuite() {
 	suite.T().Logf("TestEnvRunAddrSuite SetupSuite")
 	suite.Require().NotEmpty(flagTargetBinaryPath, "-binary-path non-empty flag required")
 	suite.Require().NotEmpty(flagServerPort, "-server-port non-empty flag required")
-
+	suite.Require().NotEmpty(flagGophermartDatabaseURI, "-gophermart-database-uri non-empty flag required")
 	// приравниваем адрес сервера
 	suite.serverAddress = "127.0.0.1:" + flagServerPort
 
@@ -59,7 +59,7 @@ func (suite *TestRegSuite) SetupSuite() {
 
 		envs := append(os.Environ(), []string{
 			"RUN_ADDR=" + suite.serverAddress,
-			
+			"DATABASE_URI=" + flagGophermartDatabaseURI,
 		}...)
 		p := fork.NewBackgroundProcess(context.Background(), flagTargetBinaryPath,
 			fork.WithEnv(envs...),
@@ -142,6 +142,11 @@ func (suite *TestRegSuite) TestHandler() {
 		return errRedirectBlocked
 	})
 
+	m := []byte(`{
+		"login": "user1",
+		"password": "password1"
+	}`)
+
 	httpc := resty.New().
 		SetBaseURL("http://" + suite.serverAddress).
 		SetRedirectPolicy(redirPolicy)
@@ -151,16 +156,41 @@ func (suite *TestRegSuite) TestHandler() {
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		defer cancel()
 
-		// делаем запрос к серверу для сокращения URL
+		//шлем запрос  получение списка загруженных пользователем номеров заказов - без ключа авторизации
+		suite.T().Logf("Шлю запрос GET orders - без авторизации. Должен прийти ответ со статусом StatusUnauthorized")
 		req := httpc.R().
+			SetHeader("Content-Type", "application/json").
+			SetBody(m).
 			SetContext(ctx)
-
-		_, err := req.Get("/api/user/register")
-
+		//я должен получить ответ
+		//провожу роверку на наличие ответа
+		resp, err := req.Get("/api/user/orders")
 		noRespErr := suite.Assert().NoError(err, "Ошибка при попытке сделать запрос")
-
 		if !noRespErr {
 			suite.T().Errorf(err.Error())
 		}
+		//я должен получить ответ со статусом StatusUnauthorized о том что запрос не обработан из за отсутствия валидного ключа авторизации
+		////провожу роверку на наличие статуса StatusUnauthorized
+		suite.Assert().Equalf(http.StatusUnauthorized, resp.StatusCode(),
+			"Несоответствие статус кода ответа ожидаемому в хендлере '%s %s'", req.Method, req.URL)
+
+		/*
+			// делаем запрос на регистрацию
+			req := httpc.R().
+				SetHeader("Content-Type", "application/json").
+				SetBody(m).
+				SetContext(ctx)
+
+			resp, err := req.Get("/api/user/register")
+
+			//Должны получить ответ со статусом 200 — пользователь успешно зарегистрирован и аутентифицирован;
+			//В ответе должен быть HTTP-заголовок Authorization
+
+			noRespErr := suite.Assert().NoError(err, "Ошибка при попытке сделать запрос")
+
+			if !noRespErr {
+				suite.T().Errorf(err.Error())
+			}
+		*/
 	})
 }
