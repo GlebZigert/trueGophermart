@@ -1,0 +1,60 @@
+package middleware
+
+import (
+	"net/http"
+
+	"github.com/GlebZigert/gophermart/internal/auth"
+	"github.com/GlebZigert/gophermart/internal/logger"
+	"github.com/GlebZigert/gophermart/internal/packerr"
+	"go.uber.org/zap"
+)
+
+func Auth(h http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		var err error
+		defer packerr.AddErrToReqContext(r, &err)
+		// по умолчанию устанавливаем оригинальный http.ResponseWriter как тот,
+		// который будем передавать следующей функции
+
+		// проверяем, что клиент умеет получать от сервера сжатые данные в формате gzip
+		authv := r.Header.Get("Authorization")
+		logger.Log.Info("auth: ", zap.String("", authv))
+
+		_, err = auth.GetUserID(authv)
+
+		if err != nil {
+
+		}
+
+		if err != nil {
+
+			logger.Log.Error("Auth: ", zap.String("", err.Error()))
+			/*
+					jwt, _ := auth.BuildJWTString()
+					userid, _ = auth.GetUserID(jwt)
+					ctx = context.WithValue(ctx, config.JWTkey, string(jwt))
+					ctx = context.WithValue(ctx, config.NEWkey, bool(true))
+
+					//	w.Header().Add("Authorization", string(jwt))
+					cookie := http.Cookie{
+						Name:     "Authorization",
+						Value:    string(jwt),
+						Path:     "/",
+						HttpOnly: true,
+					}
+					http.SetCookie(w, &cookie)
+					ctx = context.WithValue(ctx, config.UIDkey, int(userid))
+				r = r.WithContext(ctx)
+			*/
+			w.Header().Add("Content-Type", "application/json")
+			w.WriteHeader(http.StatusUnauthorized)
+
+			w.Write([]byte{})
+			return
+
+		}
+
+		h.ServeHTTP(w, r)
+
+	})
+}
