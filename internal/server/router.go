@@ -19,6 +19,8 @@ func InitRouter() {
 		r.Get("/api/user/orders", OrdersGet)
 	})
 
+	r.Post("/api/user/register", Register)
+
 	err := http.ListenAndServe(config.RunAddr, r)
 	if err != nil {
 		logger.Log.Error("ListenAndServe", zap.String("err", err.Error()))

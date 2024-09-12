@@ -168,13 +168,6 @@ func (suite *TestRegSuite) TestHandler() {
 		suite.Assert().Equalf(http.StatusUnauthorized, resp.StatusCode(),
 			"Несоответствие статус кода ответа ожидаемому в хендлере '%s %s'", req.Method, req.URL)
 
-		/*
-			m := []byte(`{
-					"login": "user1",
-					"password": "password1"
-				}`)
-		*/
-
 		// делаем запрос на регистрацию без нормальной посылки - должен быть ответ со статусом 400 - неверный формат запроса
 		req = httpc.R().
 			SetHeader("Content-Type", "application/json").
@@ -193,6 +186,32 @@ func (suite *TestRegSuite) TestHandler() {
 		}
 
 		suite.Assert().Equalf(http.StatusBadRequest, resp.StatusCode(),
+			"Несоответствие статус кода ответа ожидаемому в хендлере '%s %s'", req.Method, req.URL)
+
+		// делаем запрос на регистрацию c нормальной посылкой - должен быть ответ со статусом 200 и валидным ключем авторизации с userID в хедере
+
+		m := []byte(`{
+					"login": "user1",
+					"password": "password1"
+				}`)
+
+		req = httpc.R().
+			SetHeader("Content-Type", "application/json").
+			SetBody(m).
+			SetContext(ctx)
+
+		resp, err = req.Post("/api/user/register")
+
+		//Должны получить ответ со статусом 200 — пользователь успешно зарегистрирован и аутентифицирован;
+		//В ответе должен быть HTTP-заголовок Authorization
+
+		noRespErr = suite.Assert().NoError(err, "Ошибка при попытке сделать запрос")
+
+		if !noRespErr {
+			suite.T().Errorf(err.Error())
+		}
+
+		suite.Assert().Equalf(http.StatusOK, resp.StatusCode(),
 			"Несоответствие статус кода ответа ожидаемому в хендлере '%s %s'", req.Method, req.URL)
 
 	})
