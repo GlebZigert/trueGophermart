@@ -6,9 +6,13 @@ import (
 	"net/http"
 
 	"github.com/GlebZigert/gophermart/internal/auth"
+	"github.com/GlebZigert/gophermart/internal/logger"
 	"github.com/GlebZigert/gophermart/internal/packerr"
 	"github.com/GlebZigert/gophermart/internal/users"
+	"go.uber.org/zap"
 )
+
+var Conflict *users.UsersErr = &users.UsersErr{"Конфликт: логин занят"}
 
 func Register(w http.ResponseWriter, req *http.Request) {
 	var err error
@@ -31,6 +35,17 @@ func Register(w http.ResponseWriter, req *http.Request) {
 	}
 
 	//если пришла правильная посылка
+	logger.Log.Info("try to register: ", zap.String("login", user.Login), zap.String("password", user.Password))
+	//проверяем есть ли уже такой логин
+
+	if _, ok := users.Find(user.Login); ok == nil {
+
+		//поднять ошибку о конфликте
+		err = Conflict
+		w.WriteHeader(http.StatusConflict)
+		w.Write([]byte{})
+		return
+	}
 
 	jwt, _ := auth.BuildJWTString()
 	//добавляю ключ

@@ -3,6 +3,7 @@ package dblayer
 import (
 	"context"
 	"database/sql"
+	"strings"
 
 	"time"
 
@@ -17,14 +18,28 @@ const (
 	qTimeout = 1500
 )
 
-var dbl DBLayer
+var dbl *DBLayer
+
+type Fields map[string]interface{}
 
 type DBLayer struct {
 	db      *sql.DB
 	timeout time.Duration
 }
 
+type QUD struct { // Query-Update-Delete
+	DBLayer
+	table string
+	//db      *sql.DB
+	//tx      *sql.Tx
+	cond   string // WHERE a = ? AND b = ?
+	group  string
+	order  string
+	params []interface{} // params for condition expression
+}
+
 func Init() (err error) {
+
 	logger.Log.Info("config.DatabaseDSN: ", zap.String("config.DatabaseDSN", config.DatabaseDSN))
 	database, err := sql.Open("pgx", config.DatabaseDSN)
 	if nil != err {
@@ -41,7 +56,7 @@ func Init() (err error) {
 		database.Close()
 		return
 	}
-
+	dbl = &DBLayer{}
 	dbl.Bind(database, qTimeout)
 
 	err = dbl.MakeTables(tables, true)
@@ -69,4 +84,133 @@ func (dbl *DBLayer) MakeTables(tables []string, strict bool) (err error) {
 		_, err = dbl.db.ExecContext(ctx, tables[i])
 	}
 	return
+}
+
+func Table(t string) *QUD {
+	// TODO: maybe db: &dbl.DB ?
+	//return &QUD{table: t, db: dbl.db}
+	return &QUD{table: t, DBLayer: *dbl}
+}
+
+func (qud *QUD) Seek(args ...interface{}) *QUD {
+	var where, list string
+	var count int
+	if len(args) == 0 {
+		return qud
+	}
+
+	for pos, arg := range args {
+		switch v := arg.(type) {
+		case string:
+			if 0 == pos {
+				count = strings.Count(v, "?")
+				where = v
+			} else {
+				qud.params = append(qud.params, arg)
+			}
+		case int, int64:
+			if 0 == pos || pos > count {
+				list = " = ?"
+			}
+			qud.params = append(qud.params, arg)
+
+		case []int64: // TODO: use strings.Repeat()
+			//list = "IN(" + JoinSlice(v) + ")"
+			if len(v) > 0 {
+				list = "IN(?" + strings.Repeat(", ?", len(v)-1) + ")"
+				for i := range v {
+					qud.params = append(qud.params, v[i])
+				}
+			}
+		case []string: // TODO: use strings.Repeat()
+			//list = "IN(" + JoinSlice(v) + ")"
+			if len(v) > 0 {
+				list = "IN(?" + strings.Repeat(", ?", len(v)-1) + ")"
+				for i := range v {
+					qud.params = append(qud.params, v[i])
+				}
+			}
+
+		default:
+			qud.params = append(qud.params, arg)
+		}
+	}
+	if "" != list && "" == where {
+		where = "id"
+	}
+	if "" != list || "" != where {
+		qud.cond = " WHERE " + where + " " + list
+	}
+
+	return qud
+}
+
+func (qud *QUD) Get(tx *sql.Tx, mymap Fields, limits ...int64) (*sql.Rows, []interface{}, error) {
+	return qud.get(tx, "", mymap, limits...)
+}
+
+func (qud *QUD) get(tx *sql.Tx, hint string, mymap Fields, limits ...int64) (res *sql.Rows, values []interface{}, err error) {
+
+	//   fmt.Println("(qud *QUD) get hint ",hint)
+	keys := ""
+	values = make([]interface{}, len(mymap))
+
+	i := 0
+	for k, v := range mymap {
+		if "" != keys {
+			keys += ", "
+		}
+		if strings.ContainsRune(k, '(') || strings.ContainsRune(k, ' ') {
+			keys += k
+		} else if strings.ContainsRune(k, '.') {
+			keys += strings.Replace(k, ".", ".`", 1) + "`"
+		} else {
+			keys += "`" + k + "`"
+		}
+
+		values[i] = v
+		i++
+	}
+	q := "SELECT " + hint + " " + keys + " FROM " + qud.table + " " + qud.cond
+	if "" != qud.order {
+		q += " ORDER BY " + qud.order
+	}
+	if "" != qud.group {
+		q += " GROUP BY " + qud.group
+	}
+	if len(limits) > 0 {
+		q += " LIMIT ?" // + strconv.FormatInt(limits[0], 10)
+		qud.params = append(qud.params, limits[0])
+	}
+	if len(limits) > 1 {
+		q += ", ?"
+		qud.params = append(qud.params, limits[1])
+	}
+
+	//  fmt.Println("get: ",q)
+	logger.Log.Info("query: ", zap.String("", q))
+
+	if nil == tx {
+		//   fmt.Println("get qud.db.QueryContext ",q)
+		ctx, _ := context.WithTimeout(context.TODO(), qud.timeout)
+		res, err = qud.db.QueryContext(ctx, q, qud.params...)
+	} else {
+		//    fmt.Println("get tx.Query ",q)
+		res, err = tx.Query(q, qud.params...)
+	}
+
+	qud.reset()
+
+	return res, values, err
+}
+
+// all calls shoud be chained .Table().Seek().Get(nil, )
+// but someone can reuse .Table() multiple times
+// so we need to clean conditional part of object (cond & params)
+// for just in case
+func (qud *QUD) reset(args ...interface{}) {
+	qud.cond = ""
+	qud.group = ""
+	qud.order = ""
+	qud.params = []interface{}{}
 }

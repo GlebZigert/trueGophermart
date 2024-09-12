@@ -218,5 +218,19 @@ func (suite *TestRegSuite) TestHandler() {
 		setCookieHeader := resp.Header().Get("Set-Cookie")
 		suite.Assert().True(authHeader != "" || setCookieHeader != "",
 			"Не удалось обнаружить авторизационные данные в ответе")
+
+		// делаем запрос на регистрацию c той же самой посылкой - должен быть ответ со статусом 409 — логин уже занят;
+
+		resp, err = req.Post("/api/user/register")
+
+		noRespErr = suite.Assert().NoError(err, "Ошибка при попытке сделать запрос")
+
+		if !noRespErr {
+			suite.T().Errorf(err.Error())
+		}
+
+		suite.Assert().Equalf(http.StatusConflict, resp.StatusCode(),
+			"Несоответствие статус кода ответа ожидаемому в хендлере '%s %s'", req.Method, req.URL)
+		//
 	})
 }
