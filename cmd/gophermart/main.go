@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/GlebZigert/gophermart/internal/app"
+	"github.com/GlebZigert/trueGophermart/internal/app"
 )
 
 func main() {

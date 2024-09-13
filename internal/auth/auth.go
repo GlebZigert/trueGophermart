@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/GlebZigert/gophermart/internal/config"
-	"github.com/GlebZigert/gophermart/internal/packerr"
+	"github.com/GlebZigert/trueGophermart/internal/config"
+	"github.com/GlebZigert/trueGophermart/internal/packerr"
 	"github.com/golang-jwt/jwt/v4"
 )
 

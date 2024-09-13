@@ -7,7 +7,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/GlebZigert/gophermart/internal/fork"
+	"github.com/GlebZigert/trueGophermart/internal/fork"
 
 	"github.com/stretchr/testify/suite"
 )

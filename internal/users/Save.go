@@ -1,8 +1,8 @@
 package users
 
 import (
-	"github.com/GlebZigert/gophermart/internal/dblayer"
-	"github.com/GlebZigert/gophermart/internal/logger"
+	"github.com/GlebZigert/trueGophermart/internal/dblayer"
+	"github.com/GlebZigert/trueGophermart/internal/logger"
 	"go.uber.org/zap"
 )
 

@@ -14,7 +14,14 @@ go1.20.7 build cmd/gophermart/main.go
 
 Запуск автотеста:
 
+Windows
 .\autotests.test.exe -binary-path=C:\gophermart\main.exe -server-port=8080 -gophermart-database-uri="host=localhost user=postgres password=qwer dbname=testdb sslmode=disable"
+
+Линкус
+
+cd autotests
+go1.21.0 test -binary-path=../main -server-port=8080 
+-gophermart-database-uri="host=localhost user=gz password=gzpassword dbname=gzbase sslmode=disable"
 
 Запуск сервера
 ./main.exe -d="host=localhost user=postgres password=qwer dbname=testdb sslmode=disable"

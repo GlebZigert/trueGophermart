@@ -4,7 +4,7 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/GlebZigert/gophermart/internal/config"
+	"github.com/GlebZigert/trueGophermart/internal/config"
 )
 
 // Метод для добавления ошибки в контекст реквеста

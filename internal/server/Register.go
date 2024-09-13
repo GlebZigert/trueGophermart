@@ -5,10 +5,10 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/GlebZigert/gophermart/internal/auth"
-	"github.com/GlebZigert/gophermart/internal/logger"
-	"github.com/GlebZigert/gophermart/internal/packerr"
-	"github.com/GlebZigert/gophermart/internal/users"
+	"github.com/GlebZigert/trueGophermart/internal/auth"
+	"github.com/GlebZigert/trueGophermart/internal/logger"
+	"github.com/GlebZigert/trueGophermart/internal/packerr"
+	"github.com/GlebZigert/trueGophermart/internal/users"
 	"go.uber.org/zap"
 )
 

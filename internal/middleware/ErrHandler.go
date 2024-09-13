@@ -4,8 +4,8 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/GlebZigert/gophermart/internal/config"
-	"github.com/GlebZigert/gophermart/internal/logger"
+	"github.com/GlebZigert/trueGophermart/internal/config"
+	"github.com/GlebZigert/trueGophermart/internal/logger"
 	"go.uber.org/zap"
 )
 

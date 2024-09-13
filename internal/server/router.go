@@ -3,9 +3,9 @@ package server
 import (
 	"net/http"
 
-	"github.com/GlebZigert/gophermart/internal/config"
-	"github.com/GlebZigert/gophermart/internal/logger"
-	"github.com/GlebZigert/gophermart/internal/middleware"
+	"github.com/GlebZigert/trueGophermart/internal/config"
+	"github.com/GlebZigert/trueGophermart/internal/logger"
+	"github.com/GlebZigert/trueGophermart/internal/middleware"
 	"github.com/go-chi/chi"
 	"go.uber.org/zap"
 )

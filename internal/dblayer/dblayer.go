@@ -11,8 +11,8 @@ import (
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"go.uber.org/zap"
 
-	"github.com/GlebZigert/gophermart/internal/config"
-	"github.com/GlebZigert/gophermart/internal/logger"
+	"github.com/GlebZigert/trueGophermart/internal/config"
+	"github.com/GlebZigert/trueGophermart/internal/logger"
 )
 
 const (

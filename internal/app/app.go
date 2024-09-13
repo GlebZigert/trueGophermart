@@ -1,10 +1,10 @@
 package app
 
 import (
-	"github.com/GlebZigert/gophermart/internal/config"
-	"github.com/GlebZigert/gophermart/internal/dblayer"
-	"github.com/GlebZigert/gophermart/internal/logger"
-	"github.com/GlebZigert/gophermart/internal/server"
+	"github.com/GlebZigert/trueGophermart/internal/config"
+	"github.com/GlebZigert/trueGophermart/internal/dblayer"
+	"github.com/GlebZigert/trueGophermart/internal/logger"
+	"github.com/GlebZigert/trueGophermart/internal/server"
 	"go.uber.org/zap"
 )
 

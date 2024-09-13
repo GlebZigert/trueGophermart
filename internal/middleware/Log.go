@@ -5,9 +5,9 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/GlebZigert/gophermart/internal/config"
-	"github.com/GlebZigert/gophermart/internal/logger"
-	"github.com/GlebZigert/gophermart/internal/packerr"
+	"github.com/GlebZigert/trueGophermart/internal/config"
+	"github.com/GlebZigert/trueGophermart/internal/logger"
+	"github.com/GlebZigert/trueGophermart/internal/packerr"
 	"go.uber.org/zap"
 )
 

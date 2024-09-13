@@ -9,7 +9,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/GlebZigert/gophermart/internal/fork"
+	"github.com/GlebZigert/trueGophermart/internal/fork"
 	"github.com/go-resty/resty/v2"
 
 	"github.com/stretchr/testify/suite"
@@ -308,6 +308,27 @@ func (suite *TestRegSuite) TestHandler() {
 		// //провожу роверку на наличие статуса StatusUnauthorized
 
 		suite.Assert().Equalf(http.StatusBadRequest, resp.StatusCode(), "")
+
+		suite.T().Logf("Шлю запрос на авторизацию - с неверным паролем-логином. Должен прийти ответ со статусом 401 ")
+
+		wrong := []byte(`{
+		"login": "wrong_user1",
+		"password": "wrong_password1"
+	}`)
+		req = httpc.R().
+			SetBody(wrong).
+			SetContext(ctx)
+		// я должен получить ответ
+		// провожу роверку на наличие ответа
+		resp, err = req.Post("/api/user/login")
+		noRespErr = suite.Assert().NoError(err, "Ошибка при попытке сделать запрос")
+		if !noRespErr {
+			suite.T().Errorf(err.Error())
+		}
+		// я должен получить ответ со статусом StatusUnauthorized о том что запрос не обработан из за отсутствия валидного ключа авторизации
+		// //провожу роверку на наличие статуса StatusUnauthorized
+
+		suite.Assert().Equalf(http.StatusUnauthorized, resp.StatusCode(), "")
 
 	})
 

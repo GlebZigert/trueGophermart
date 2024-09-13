@@ -5,8 +5,8 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/GlebZigert/gophermart/internal/packerr"
-	"github.com/GlebZigert/gophermart/internal/users"
+	"github.com/GlebZigert/trueGophermart/internal/packerr"
+	"github.com/GlebZigert/trueGophermart/internal/users"
 )
 
 func Login(w http.ResponseWriter, req *http.Request) {
