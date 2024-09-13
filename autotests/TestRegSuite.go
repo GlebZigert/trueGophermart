@@ -293,22 +293,22 @@ func (suite *TestRegSuite) TestHandler() {
 		if !StatusUnauthorized {
 			suite.T().Fatalf("Неавторизован")
 		}
-		/*
-			suite.T().Logf("Шлю запрос на авторизацию - с пустым паролем-логином. Должен прийти ответ со статусом 400 - Неверный формат запроса")
-			req = httpc.R().
-				SetContext(ctx)
-			// я должен получить ответ
-			// провожу роверку на наличие ответа
-			resp, err = req.Get("/api/user/login")
-			noRespErr = suite.Assert().NoError(err, "Ошибка при попытке сделать запрос")
-			if !noRespErr {
-				suite.T().Errorf(err.Error())
-			}
-			// я должен получить ответ со статусом StatusUnauthorized о том что запрос не обработан из за отсутствия валидного ключа авторизации
-			// //провожу роверку на наличие статуса StatusUnauthorized
 
-			suite.Assert().Equalf(http.StatusBadRequest, resp.StatusCode(), "")
-		*/
+		suite.T().Logf("Шлю запрос на авторизацию - с пустым паролем-логином. Должен прийти ответ со статусом 400 - Неверный формат запроса")
+		req = httpc.R().
+			SetContext(ctx)
+		// я должен получить ответ
+		// провожу роверку на наличие ответа
+		resp, err = req.Get("/api/user/login")
+		noRespErr = suite.Assert().NoError(err, "Ошибка при попытке сделать запрос")
+		if !noRespErr {
+			suite.T().Errorf(err.Error())
+		}
+		// я должен получить ответ со статусом StatusUnauthorized о том что запрос не обработан из за отсутствия валидного ключа авторизации
+		// //провожу роверку на наличие статуса StatusUnauthorized
+
+		suite.Assert().Equalf(http.StatusBadRequest, resp.StatusCode(), "")
+
 	})
 
 }
