@@ -3,6 +3,7 @@ package autotests
 import (
 	"context"
 	"errors"
+	"fmt"
 	"net/http"
 	"os"
 	"syscall"
@@ -12,6 +13,8 @@ import (
 	"github.com/go-resty/resty/v2"
 
 	"github.com/stretchr/testify/suite"
+
+	"github.com/adrianbrad/psqldocker"
 )
 
 /*
@@ -42,6 +45,7 @@ Content-Type: application/json
 
 type TestRegSuite struct {
 	suite.Suite
+	psqlcontainer *psqldocker.Container
 	serverAddress string
 	serverProcess *fork.BackgroundProcess
 }
@@ -50,16 +54,51 @@ func (suite *TestRegSuite) SetupSuite() {
 	suite.T().Logf("TestEnvRunAddrSuite SetupSuite")
 	suite.Require().NotEmpty(flagTargetBinaryPath, "-binary-path non-empty flag required")
 	suite.Require().NotEmpty(flagServerPort, "-server-port non-empty flag required")
-	suite.Require().NotEmpty(flagGophermartDatabaseURI, "-gophermart-database-uri non-empty flag required")
+	//	suite.Require().NotEmpty(flagGophermartDatabaseURI, "-gophermart-database-uri non-empty flag required")
 	// приравниваем адрес сервера
 	suite.serverAddress = "127.0.0.1:" + flagServerPort
+
+	const (
+		usr           = "usr"
+		password      = "pass"
+		dbName        = "tst"
+		containerName = "psql_docker_tests"
+	)
+
+	// run a new psql docker container.
+	var err error
+	suite.psqlcontainer, err = psqldocker.NewContainer(
+		usr,
+		password,
+		dbName,
+		psqldocker.WithContainerName(containerName),
+	)
+
+	if err != nil {
+		suite.T().Errorf("Не запустился контейнер с базой")
+		return
+	}
+
+	// compose the psql dsn.
+	dsn := fmt.Sprintf(
+		"user=%s "+
+			"password=%s "+
+			"dbname=%s "+
+			"host=localhost "+
+			"port=%s "+
+			"sslmode=disable",
+		usr,
+		password,
+		dbName,
+		suite.psqlcontainer.Port(),
+	)
 
 	// запускаем процесс тестируемого сервера
 	{
 
 		envs := append(os.Environ(), []string{
 			"RUN_ADDR=" + suite.serverAddress,
-			"DATABASE_URI=" + flagGophermartDatabaseURI,
+			"DATABASE_URI=" + dsn,
 		}...)
 		p := fork.NewBackgroundProcess(context.Background(), flagTargetBinaryPath,
 			fork.WithEnv(envs...),
@@ -92,6 +131,8 @@ func (suite *TestRegSuite) SetupSuite() {
 
 			return
 		}
+
+		//надо почистить базу
 
 		if out := p.Stderr(ctx); len(out) > 0 {
 			suite.T().Logf("Получен STDERR лог агента:\n\n%s\n\n", string(out))
@@ -233,9 +274,7 @@ func (suite *TestRegSuite) TestHandler() {
 
 		suite.Assert().Equalf(http.StatusConflict, resp.StatusCode(),
 			"Несоответствие статус кода ответа ожидаемому в хендлере '%s %s'", req.Method, req.URL)
-		//
 
-		// шлем запрос  получение списка загруженных пользователем номеров заказов - без ключа авторизации
 		suite.T().Logf("Шлю запрос GET orders - теперь с авторизацией. Должен прийти ответ со статусом StatusOk")
 		req = httpc.R().
 			SetHeader("Authorization", authHeader).
@@ -254,6 +293,22 @@ func (suite *TestRegSuite) TestHandler() {
 		if !StatusUnauthorized {
 			suite.T().Fatalf("Неавторизован")
 		}
+		/*
+			suite.T().Logf("Шлю запрос на авторизацию - с пустым паролем-логином. Должен прийти ответ со статусом 400 - Неверный формат запроса")
+			req = httpc.R().
+				SetContext(ctx)
+			// я должен получить ответ
+			// провожу роверку на наличие ответа
+			resp, err = req.Get("/api/user/login")
+			noRespErr = suite.Assert().NoError(err, "Ошибка при попытке сделать запрос")
+			if !noRespErr {
+				suite.T().Errorf(err.Error())
+			}
+			// я должен получить ответ со статусом StatusUnauthorized о том что запрос не обработан из за отсутствия валидного ключа авторизации
+			// //провожу роверку на наличие статуса StatusUnauthorized
 
+			suite.Assert().Equalf(http.StatusBadRequest, resp.StatusCode(), "")
+		*/
 	})
+
 }
