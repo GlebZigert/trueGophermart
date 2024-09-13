@@ -51,7 +51,7 @@ func Login(w http.ResponseWriter, req *http.Request) {
 
 	//если пользователь с таким логином найден - проверяем пароль
 
-	if finded.Password == user.Password {
+	if finded.Password != user.Password {
 		//если пароли несовпадают
 		err = WrongPassword
 		w.WriteHeader(http.StatusUnauthorized)

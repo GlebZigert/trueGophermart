@@ -330,6 +330,27 @@ func (suite *TestRegSuite) TestHandler() {
 
 		suite.Assert().Equalf(http.StatusUnauthorized, resp.StatusCode(), "")
 
+		suite.T().Logf("Шлю запрос на авторизацию - с правильным паролем и неверным логином. Должен прийти ответ со статусом 401 ")
+
+		wrong = []byte(`{
+		"login": "user1",
+		"password": "wrong_password1"
+	}`)
+		req = httpc.R().
+			SetBody(wrong).
+			SetContext(ctx)
+		// я должен получить ответ
+		// провожу роверку на наличие ответа
+		resp, err = req.Post("/api/user/login")
+		noRespErr = suite.Assert().NoError(err, "Ошибка при попытке сделать запрос")
+		if !noRespErr {
+			suite.T().Errorf(err.Error())
+		}
+		// я должен получить ответ со статусом StatusUnauthorized о том что запрос не обработан из за отсутствия валидного ключа авторизации
+		// //провожу роверку на наличие статуса StatusUnauthorized
+
+		suite.Assert().Equalf(http.StatusUnauthorized, resp.StatusCode(), "")
+
 	})
 
 }
