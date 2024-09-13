@@ -18,12 +18,15 @@ func InitRouter() {
 		r.Use(middleware.ErrHandler)
 		r.Use(middleware.Log)
 
+		//в бизнес-логику нужна аутентификация
 		r.Group(func(r chi.Router) {
 			r.Use(middleware.Auth)
 			r.Get("/api/user/orders", OrdersGet)
 		})
 
+		//в регистрацию-авторизацию не нужна аутентификация
 		r.Post("/api/user/register", Register)
+		r.Post("/api/user/login", Login)
 	})
 
 	err := http.ListenAndServe(config.RunAddr, r)

@@ -299,7 +299,7 @@ func (suite *TestRegSuite) TestHandler() {
 			SetContext(ctx)
 		// я должен получить ответ
 		// провожу роверку на наличие ответа
-		resp, err = req.Get("/api/user/login")
+		resp, err = req.Post("/api/user/login")
 		noRespErr = suite.Assert().NoError(err, "Ошибка при попытке сделать запрос")
 		if !noRespErr {
 			suite.T().Errorf(err.Error())
