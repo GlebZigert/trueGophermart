@@ -2,6 +2,6 @@ package server
 
 import "net/http"
 
-func OrdersGet(w http.ResponseWriter, req *http.Request) {
+func (h handler) OrdersGet(w http.ResponseWriter, req *http.Request) {
 
 }

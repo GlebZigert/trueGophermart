@@ -2,6 +2,7 @@ package server
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 
@@ -14,7 +15,7 @@ import (
 
 var Conflict *users.UsersErr = &users.UsersErr{"Конфликт: логин занят"}
 
-func Register(w http.ResponseWriter, req *http.Request) {
+func (h handler) Register(w http.ResponseWriter, req *http.Request) {
 	logger.Log.Info("register-->")
 
 	var err error
@@ -40,7 +41,13 @@ func Register(w http.ResponseWriter, req *http.Request) {
 	logger.Log.Info("try to register: ", zap.String("login", user.Login), zap.String("password", user.Password))
 	//проверяем есть ли уже такой логин
 
-	if _, ok := users.Find(user.Login); ok == nil {
+	var finded *users.User
+
+	if result := h.DB.First(finded, user.Login); result.Error != nil {
+		fmt.Println(result.Error)
+	}
+
+	if finded == nil {
 
 		//поднять ошибку о конфликте
 		err = Conflict
@@ -49,7 +56,8 @@ func Register(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	if err = users.Save(user.Login, user.Password); err != nil {
+	if result := h.DB.Create(&user); result.Error != nil {
+
 		err = Conflict
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte{})

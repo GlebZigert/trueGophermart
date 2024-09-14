@@ -2,6 +2,7 @@ package server
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 
@@ -14,7 +15,7 @@ import (
 
 var WrongPassword *users.UsersErr = &users.UsersErr{"Неверный пароль"}
 
-func Login(w http.ResponseWriter, req *http.Request) {
+func (h handler) Login(w http.ResponseWriter, req *http.Request) {
 
 	var err error
 	defer packerr.AddErrToReqContext(req, &err)
@@ -39,9 +40,13 @@ func Login(w http.ResponseWriter, req *http.Request) {
 	logger.Log.Info("try to logib: ", zap.String("login", user.Login), zap.String("password", user.Password))
 	//проверяем есть ли уже такой логин
 
-	finded, ok := users.Find(user.Login)
-	if ok != nil {
+	var finded *users.User
 
+	if result := h.DB.First(finded, user.Login); result.Error != nil {
+		fmt.Println(result.Error)
+	}
+
+	if finded != nil {
 		//если не нашлось пользователя с таким логином
 		err = users.FoundNoUser
 		w.WriteHeader(http.StatusUnauthorized)

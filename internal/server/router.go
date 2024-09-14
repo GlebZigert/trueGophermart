@@ -10,7 +10,7 @@ import (
 	"go.uber.org/zap"
 )
 
-func InitRouter() {
+func InitRouter(h *handler) {
 	logger.Log.Info("Running server", zap.String("address", config.RunAddr))
 	r := chi.NewRouter()
 
@@ -21,12 +21,12 @@ func InitRouter() {
 		//в бизнес-логику нужна аутентификация
 		r.Group(func(r chi.Router) {
 			r.Use(middleware.Auth)
-			r.Get("/api/user/orders", OrdersGet)
+			r.Get("/api/user/orders", h.OrdersGet)
 		})
 
 		//в регистрацию-авторизацию не нужна аутентификация
-		r.Post("/api/user/register", Register)
-		r.Post("/api/user/login", Login)
+		r.Post("/api/user/register", h.Register)
+		r.Post("/api/user/login", h.Login)
 	})
 
 	err := http.ListenAndServe(config.RunAddr, r)

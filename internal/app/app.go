@@ -5,7 +5,6 @@ import (
 	"github.com/GlebZigert/trueGophermart/internal/dblayer"
 	"github.com/GlebZigert/trueGophermart/internal/logger"
 	"github.com/GlebZigert/trueGophermart/internal/server"
-	"go.uber.org/zap"
 )
 
 func Run() error {
@@ -15,12 +14,10 @@ func Run() error {
 	}
 	config.ParseFlags()
 
-	err := dblayer.Init()
-	if err != nil {
-		logger.Log.Error("dblayer.Init: ", zap.String("", err.Error()))
-		return err
-	}
-	server.InitRouter()
+	db := dblayer.Init()
+	h := server.New(db)
+
+	server.InitRouter(h)
 
 	return nil
 }
