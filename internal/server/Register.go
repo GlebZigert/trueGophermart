@@ -2,7 +2,6 @@ package server
 
 import (
 	"encoding/json"
-	"fmt"
 	"io"
 	"net/http"
 
@@ -41,13 +40,9 @@ func (h handler) Register(w http.ResponseWriter, req *http.Request) {
 	logger.Log.Info("try to register: ", zap.String("login", user.Login), zap.String("password", user.Password))
 	//проверяем есть ли уже такой логин
 
-	var finded *users.User
+	var finded users.User
 
-	if result := h.DB.First(finded, user.Login); result.Error != nil {
-		fmt.Println(result.Error)
-	}
-
-	if finded == nil {
+	if result := h.DB.Where("login = ?", user.Login).First(&finded); result.Error == nil {
 
 		//поднять ошибку о конфликте
 		err = Conflict

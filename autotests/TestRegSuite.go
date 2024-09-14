@@ -3,7 +3,6 @@ package autotests
 import (
 	"context"
 	"errors"
-	"fmt"
 	"net/http"
 	"os"
 	"syscall"
@@ -54,7 +53,7 @@ func (suite *TestRegSuite) SetupSuite() {
 	suite.T().Logf("TestEnvRunAddrSuite SetupSuite")
 	suite.Require().NotEmpty(flagTargetBinaryPath, "-binary-path non-empty flag required")
 	suite.Require().NotEmpty(flagServerPort, "-server-port non-empty flag required")
-	//	suite.Require().NotEmpty(flagGophermartDatabaseURI, "-gophermart-database-uri non-empty flag required")
+	suite.Require().NotEmpty(flagGophermartDatabaseURI, "-gophermart-database-uri non-empty flag required")
 	// приравниваем адрес сервера
 	suite.serverAddress = "127.0.0.1:" + flagServerPort
 
@@ -64,41 +63,42 @@ func (suite *TestRegSuite) SetupSuite() {
 		dbName        = "tst"
 		containerName = "psql_docker_tests"
 	)
+	/*
+		// run a new psql docker container.
+		var err error
+		suite.psqlcontainer, err = psqldocker.NewContainer(
+			usr,
+			password,
+			dbName,
+			psqldocker.WithContainerName(containerName),
+		)
 
-	// run a new psql docker container.
-	var err error
-	suite.psqlcontainer, err = psqldocker.NewContainer(
-		usr,
-		password,
-		dbName,
-		psqldocker.WithContainerName(containerName),
-	)
+		if err != nil {
+			suite.T().Errorf("Не запустился контейнер с базой")
+			return
+		}
 
-	if err != nil {
-		suite.T().Errorf("Не запустился контейнер с базой")
-		return
-	}
-
-	// compose the psql dsn.
-	dsn := fmt.Sprintf(
-		"user=%s "+
-			"password=%s "+
-			"dbname=%s "+
-			"host=localhost "+
-			"port=%s "+
-			"sslmode=disable",
-		usr,
-		password,
-		dbName,
-		suite.psqlcontainer.Port(),
-	)
+		// compose the psql dsn.
+		dsn := fmt.Sprintf(
+			"user=%s "+
+				"password=%s "+
+				"dbname=%s "+
+				"host=localhost "+
+				"port=%s "+
+				"sslmode=disable",
+			usr,
+			password,
+			dbName,
+			suite.psqlcontainer.Port(),
+		)
+	*/
 
 	// запускаем процесс тестируемого сервера
 	{
 
 		envs := append(os.Environ(), []string{
 			"RUN_ADDR=" + suite.serverAddress,
-			"DATABASE_URI=" + dsn,
+			"DATABASE_URI=" + flagGophermartDatabaseURI,
 		}...)
 		p := fork.NewBackgroundProcess(context.Background(), flagTargetBinaryPath,
 			fork.WithEnv(envs...),

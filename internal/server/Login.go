@@ -2,7 +2,6 @@ package server
 
 import (
 	"encoding/json"
-	"fmt"
 	"io"
 	"net/http"
 
@@ -42,11 +41,7 @@ func (h handler) Login(w http.ResponseWriter, req *http.Request) {
 
 	var finded *users.User
 
-	if result := h.DB.First(finded, user.Login); result.Error != nil {
-		fmt.Println(result.Error)
-	}
-
-	if finded != nil {
+	if result := h.DB.Where("login = ?", user.Login).First(&finded); result.Error != nil {
 		//если не нашлось пользователя с таким логином
 		err = users.FoundNoUser
 		w.WriteHeader(http.StatusUnauthorized)
