@@ -15,6 +15,8 @@ import (
 var Conflict *users.UsersErr = &users.UsersErr{"Конфликт: логин занят"}
 
 func Register(w http.ResponseWriter, req *http.Request) {
+	logger.Log.Info("register-->")
+
 	var err error
 	defer packerr.AddErrToReqContext(req, &err)
 
