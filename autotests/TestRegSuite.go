@@ -219,9 +219,6 @@ func (suite *TestRegSuite) TestHandler() {
 
 		resp, err = req.Post("/api/user/register")
 
-		//Должны получить ответ со статусом 200 — пользователь успешно зарегистрирован и аутентифицирован;
-		//В ответе должен быть HTTP-заголовок Authorization
-
 		noRespErr = suite.Assert().NoError(err, "Ошибка при попытке сделать запрос")
 
 		if !noRespErr {

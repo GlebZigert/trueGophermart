@@ -23,6 +23,8 @@ cd autotests
 go1.21.0 test -binary-path=../main -server-port=8080 
 -gophermart-database-uri="host=localhost user=gz password=gzpassword dbname=gzbase sslmode=disable"
 
+go test -binary-path=C:\trueGophermart\main.exe -server-port=8080 -gophermart-database-uri="host=localhost user=postgres password=qwer dbname=testdb sslmode=disable"
+
 Запуск сервера
 ./main.exe -d="host=localhost user=postgres password=qwer dbname=testdb sslmode=disable"
 
