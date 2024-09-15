@@ -7,19 +7,19 @@ import (
 
 	"github.com/GlebZigert/trueGophermart/internal/auth"
 	"github.com/GlebZigert/trueGophermart/internal/logger"
+	"github.com/GlebZigert/trueGophermart/internal/model"
 	"github.com/GlebZigert/trueGophermart/internal/packerr"
-	"github.com/GlebZigert/trueGophermart/internal/users"
 	"go.uber.org/zap"
 )
 
-var WrongPassword *users.UsersErr = &users.UsersErr{"Неверный пароль"}
+var WrongPassword *model.UsersErr = &model.UsersErr{"Неверный пароль"}
 
 func (h handler) Login(w http.ResponseWriter, req *http.Request) {
 
 	var err error
 	defer packerr.AddErrToReqContext(req, &err)
 
-	var user users.User
+	var user model.User
 
 	body, err := io.ReadAll(req.Body)
 	if err != nil {
@@ -39,11 +39,11 @@ func (h handler) Login(w http.ResponseWriter, req *http.Request) {
 	logger.Log.Info("try to logib: ", zap.String("login", user.Login), zap.String("password", user.Password))
 	//проверяем есть ли уже такой логин
 
-	var finded *users.User
+	var finded *model.User
 
 	if result := h.DB.Where("login = ?", user.Login).First(&finded); result.Error != nil {
 		//если не нашлось пользователя с таким логином
-		err = users.FoundNoUser
+		err = model.FoundNoUser
 		w.WriteHeader(http.StatusUnauthorized)
 		w.Write([]byte{})
 		return

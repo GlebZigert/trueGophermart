@@ -4,7 +4,7 @@ import (
 	"log"
 
 	"github.com/GlebZigert/trueGophermart/internal/config"
-	"github.com/GlebZigert/trueGophermart/internal/users"
+	"github.com/GlebZigert/trueGophermart/internal/model"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -18,7 +18,7 @@ func Init() *gorm.DB {
 		log.Fatalln(err)
 	}
 
-	db.AutoMigrate(&users.User{})
-
+	db.AutoMigrate(&model.User{})
+	db.AutoMigrate(&model.Order{})
 	return db
 }

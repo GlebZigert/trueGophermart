@@ -1,4 +1,4 @@
-package users
+package model
 
 type User struct {
 	ID       int    `db:"id"`
