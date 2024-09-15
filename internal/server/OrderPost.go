@@ -25,6 +25,8 @@ Content-Type: text/plain
 */
 
 import (
+	"encoding/json"
+	"io"
 	"net/http"
 
 	"github.com/GlebZigert/trueGophermart/internal/config"
@@ -44,17 +46,62 @@ func (h handler) OrderPost(w http.ResponseWriter, req *http.Request) {
 		err = NoUidError
 
 		w.Header().Add("Content-Type", "application/json")
-		w.WriteHeader(http.StatusInternalServerError)
-
+		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte{})
+		return
+	}
+
+	//сомтрим на номер заказа
+	var number int
+
+	body, err := io.ReadAll(req.Body)
+	if err != nil {
+		w.Header().Add("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte{})
+		return
 
 	}
-	logger.Log.Info("Ищу номер заказа для : ", zap.Int("uid", uid))
+
+	if err = json.Unmarshal(body, &number); err != nil {
+
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return // err
+	}
+
+	logger.Log.Info("Ищу номер заказа  : ", zap.Int("uid", uid), zap.Int("number", number))
 
 	var order model.Order
 
-	if result := h.DB.Where("uid = ?", uid).First(&order); result.Error != nil {
-		logger.Log.Info("результат поиска : ", zap.String("err", result.Error.Error()))
+	result := h.DB.Where("number = ?", number).First(&order)
+	if result.Error == nil {
+		if order.UID == uid {
+			w.Header().Add("Content-Type", "application/json")
+			w.WriteHeader(http.StatusOK)
+			w.Write([]byte{})
+			return
+		} else {
+			w.Header().Add("Content-Type", "application/json")
+			w.WriteHeader(http.StatusConflict)
+			w.Write([]byte{})
+			return
+		}
+
+	}
+	order.UID = uid
+	order.Number = number
+
+	if result := h.DB.Create(&order); result.Error != nil {
+
+		err = Conflict
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte{})
+		return
 	}
 
+	logger.Log.Info("результат поиска : ", zap.String("err", result.Error.Error()))
+	w.Header().Add("Content-Type", "application/json")
+	w.WriteHeader(http.StatusAccepted)
+	w.Write([]byte{})
+	return
 }

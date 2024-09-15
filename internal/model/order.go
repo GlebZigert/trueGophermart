@@ -1,10 +1,9 @@
 package model
 
 type Order struct {
-	ID       int    `db:"id"`
-	UID      int    `db:"uid"`
-	Login    string `db:"login"`
-	Password string `db:"password"`
+	ID     int `db:"id"`
+	UID    int `db:"uid"`
+	Number int `db:"number"`
 }
 
 type OrderErr struct {

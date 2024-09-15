@@ -446,5 +446,60 @@ func (suite *TestRegSuite) TestHandler() {
 		suite.Assert().Equalf(http.StatusAccepted, resp.StatusCode(),
 			"Несоответствие статус кода ответа ожидаемому в хендлере '%s %s'", req.Method, req.URL)
 
+		suite.T().Logf(" запрос POST orders тот же номер заказа тот же пользователь -  200")
+		req = httpc.R().
+			SetBody([]byte(`12345678903`)).
+			SetHeader("Content-Type", "application/json").
+			SetHeader("Authorization", authHeader).
+			SetContext(ctx)
+
+		resp, err = req.Post("/api/user/orders")
+		noRespErr = suite.Assert().NoError(err, "Ошибка при попытке сделать запрос")
+		if !noRespErr {
+			suite.T().Errorf(err.Error())
+		}
+
+		suite.Assert().Equalf(http.StatusOK, resp.StatusCode(),
+			"Несоответствие статус кода ответа ожидаемому в хендлере '%s %s'", req.Method, req.URL)
+
+		//---
+		suite.T().Logf("регаю второго юзера ")
+
+		second := []byte(`{
+		"login": "second",
+		"password": "second"
+	}`)
+		req = httpc.R().
+			SetBody(second).
+			SetContext(ctx)
+		// я должен получить ответ
+		// провожу роверку на наличие ответа
+		resp, err = req.Post("/api/user/register")
+		noRespErr = suite.Assert().NoError(err, "Ошибка при попытке сделать запрос")
+		if !noRespErr {
+			suite.T().Errorf(err.Error())
+		}
+
+		suite.Assert().Equalf(http.StatusOK, resp.StatusCode(), "")
+
+		SecondAuthHeader := resp.Header().Get("Authorization")
+		suite.Assert().True(SecondAuthHeader != "")
+
+		suite.T().Logf(" запрос POST orders тот же номер заказа но другой пользователь -  409")
+		req = httpc.R().
+			SetBody([]byte(`12345678903`)).
+			SetHeader("Content-Type", "application/json").
+			SetHeader("Authorization", SecondAuthHeader).
+			SetContext(ctx)
+
+		resp, err = req.Post("/api/user/orders")
+		noRespErr = suite.Assert().NoError(err, "Ошибка при попытке сделать запрос")
+		if !noRespErr {
+			suite.T().Errorf(err.Error())
+		}
+
+		suite.Assert().Equalf(http.StatusConflict, resp.StatusCode(),
+			"Несоответствие статус кода ответа ожидаемому в хендлере '%s %s'", req.Method, req.URL)
+
 	})
 }
