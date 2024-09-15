@@ -273,7 +273,7 @@ func (suite *TestRegSuite) TestHandler() {
 		suite.Assert().Equalf(http.StatusConflict, resp.StatusCode(),
 			"Несоответствие статус кода ответа ожидаемому в хендлере '%s %s'", req.Method, req.URL)
 
-		suite.T().Logf("Шлю запрос GET orders - теперь с авторизацией. Должен прийти ответ со статусом StatusOk")
+		suite.T().Logf("Шлю запрос GET orders - теперь с авторизацией. Должен прийти ответ со статусом отличным от StatusUnauthorized")
 		req = httpc.R().
 			SetHeader("Authorization", authHeader).
 			SetContext(ctx)
@@ -501,5 +501,19 @@ func (suite *TestRegSuite) TestHandler() {
 		suite.Assert().Equalf(http.StatusConflict, resp.StatusCode(),
 			"Несоответствие статус кода ответа ожидаемому в хендлере '%s %s'", req.Method, req.URL)
 
+		suite.T().Logf("Шлю запрос GET orders - c авторизацией.Теперь там есть строки. Должен прийти ответ со статусом 200. И json с заказами")
+		req = httpc.R().
+			SetHeader("Content-Type", "application/json").
+			SetHeader("Authorization", authHeader).
+			SetContext(ctx)
+
+		resp, err = req.Get("/api/user/orders")
+		noRespErr = suite.Assert().NoError(err, "Ошибка при попытке сделать запрос")
+		if !noRespErr {
+			suite.T().Errorf(err.Error())
+		}
+
+		suite.Assert().Equalf(http.StatusOK, resp.StatusCode(),
+			"Несоответствие статус кода ответа ожидаемому в хендлере '%s %s'", req.Method, req.URL)
 	})
 }
