@@ -189,7 +189,7 @@ func (suite *TestRegSuite) TestHandler() {
 		SetBaseURL("http://" + suite.serverAddress).
 		SetRedirectPolicy(redirPolicy)
 
-	suite.Run("shorten", func() {
+	suite.Run("Register", func() {
 		// весь тест должен проходить менее чем за 10 секунд
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		defer cancel()
@@ -348,6 +348,71 @@ func (suite *TestRegSuite) TestHandler() {
 
 		suite.Assert().Equalf(http.StatusUnauthorized, resp.StatusCode(), "")
 
+		suite.T().Logf("Шлю запрос на авторизацию - с правильным паролем и  логином. Должен прийти ответ со статусом 200 ")
+
+		wrong = []byte(`{
+		"login": "user1",
+		"password": "password1"
+	}`)
+		req = httpc.R().
+			SetBody(wrong).
+			SetContext(ctx)
+		// я должен получить ответ
+		// провожу роверку на наличие ответа
+		resp, err = req.Post("/api/user/login")
+		noRespErr = suite.Assert().NoError(err, "Ошибка при попытке сделать запрос")
+		if !noRespErr {
+			suite.T().Errorf(err.Error())
+		}
+		// я должен получить ответ со статусом StatusUnauthorized о том что запрос не обработан из за отсутствия валидного ключа авторизации
+		// //провожу роверку на наличие статуса StatusUnauthorized
+
+		suite.Assert().Equalf(http.StatusOK, resp.StatusCode(), "")
+
+		authHeader1 := resp.Header().Get("Authorization")
+		suite.Assert().True(authHeader1 != "")
+
 	})
 
+	suite.Run("Order", func() {
+		ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
+		defer cancel()
+
+		suite.T().Logf("Шлю запрос на авторизацию - с правильным паролем и  логином. Должен прийти ответ со статусом 200 ")
+
+		lp := []byte(`{
+		"login": "user1",
+		"password": "password1"
+	}`)
+		req := httpc.R().
+			SetBody(lp).
+			SetContext(ctx)
+
+		resp, err := req.Post("/api/user/login")
+		noRespErr := suite.Assert().NoError(err, "Ошибка при попытке сделать запрос")
+		if !noRespErr {
+			suite.T().Errorf(err.Error())
+		}
+
+		suite.Assert().Equalf(http.StatusOK, resp.StatusCode(), "")
+
+		authHeader := resp.Header().Get("Authorization")
+		suite.Assert().True(authHeader != "")
+
+		suite.T().Logf("Шлю запрос GET orders - c авторизацией. Должен прийти ответ со статусом StatusUnauthorized")
+		req = httpc.R().
+			SetHeader("Content-Type", "application/json").
+			SetHeader("Authorization", authHeader).
+			SetContext(ctx)
+
+		resp, err = req.Get("/api/user/orders")
+		noRespErr = suite.Assert().NoError(err, "Ошибка при попытке сделать запрос")
+		if !noRespErr {
+			suite.T().Errorf(err.Error())
+		}
+
+		suite.Assert().Equalf(http.StatusNoContent, resp.StatusCode(),
+			"Несоответствие статус кода ответа ожидаемому в хендлере '%s %s'", req.Method, req.URL)
+
+	})
 }
