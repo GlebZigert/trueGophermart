@@ -60,7 +60,7 @@ func (h handler) Login(w http.ResponseWriter, req *http.Request) {
 	}
 
 	//если пароли совпадают - авторизовываем - даем ключ
-	jwt, _ := auth.BuildJWTString()
+	jwt, _ := auth.BuildJWTString(finded.ID)
 	//добавляю ключ
 	w.Header().Add("Authorization", string(jwt))
 	//ставлю статус 200

@@ -6,8 +6,10 @@ import (
 	"time"
 
 	"github.com/GlebZigert/trueGophermart/internal/config"
+	"github.com/GlebZigert/trueGophermart/internal/logger"
 	"github.com/GlebZigert/trueGophermart/internal/packerr"
 	"github.com/golang-jwt/jwt/v4"
+	"go.uber.org/zap"
 )
 
 var ErrAccessDenied = errors.New("access denied")
@@ -22,7 +24,8 @@ type Claims struct {
 var ErrBuildJWTString error = errors.New("ошибка формирования JWT")
 
 // BuildJWTString создаёт токен и возвращает его в виде строки.
-func BuildJWTString() (string, error) {
+func BuildJWTString(id int) (string, error) {
+	logger.Log.Info("BuildJWTString: ", zap.Int("id", id))
 	// создаём новый токен с алгоритмом подписи HS256 и утверждениями — Claims
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, Claims{
 		RegisteredClaims: jwt.RegisteredClaims{
@@ -30,7 +33,7 @@ func BuildJWTString() (string, error) {
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * time.Duration(config.TOKENEXP))),
 		},
 		// собственное утверждение
-		UserID: 0,
+		UserID: id,
 	})
 
 	// создаём строку токена

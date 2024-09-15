@@ -1,9 +1,11 @@
 package middleware
 
 import (
+	"context"
 	"net/http"
 
 	"github.com/GlebZigert/trueGophermart/internal/auth"
+	"github.com/GlebZigert/trueGophermart/internal/config"
 	"github.com/GlebZigert/trueGophermart/internal/logger"
 	"github.com/GlebZigert/trueGophermart/internal/packerr"
 	"go.uber.org/zap"
@@ -20,11 +22,7 @@ func Auth(h http.Handler) http.Handler {
 		authv := r.Header.Get("Authorization")
 		logger.Log.Info("auth: ", zap.String("", authv))
 
-		_, err = auth.GetUserID(authv)
-
-		if err != nil {
-
-		}
+		id, err := auth.GetUserID(authv)
 
 		if err != nil {
 
@@ -53,6 +51,9 @@ func Auth(h http.Handler) http.Handler {
 			return
 
 		}
+		ctx := r.Context()
+		ctx = context.WithValue(ctx, config.UIDkey, id)
+		r = r.WithContext(ctx)
 
 		h.ServeHTTP(w, r)
 

@@ -59,7 +59,7 @@ func (h handler) Register(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	jwt, _ := auth.BuildJWTString()
+	jwt, _ := auth.BuildJWTString(user.ID)
 	//добавляю ключ
 	w.Header().Add("Authorization", string(jwt))
 	//ставлю статус 200

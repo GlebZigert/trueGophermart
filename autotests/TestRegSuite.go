@@ -229,6 +229,7 @@ func (suite *TestRegSuite) TestHandler() {
 			"Несоответствие статус кода ответа ожидаемому в хендлере '%s %s'", req.Method, req.URL)
 
 		// делаем запрос на регистрацию c нормальной посылкой - должен быть ответ со статусом 200 и валидным ключем авторизации с userID в хедере
+		suite.T().Logf("запрос на регистрацию c нормальной посылкой -  ответ со статусом 200 и валидным ключем авторизации с userID в хедере")
 
 		m := []byte(`{
 					"login": "user1",
@@ -399,7 +400,7 @@ func (suite *TestRegSuite) TestHandler() {
 		authHeader := resp.Header().Get("Authorization")
 		suite.Assert().True(authHeader != "")
 
-		suite.T().Logf("Шлю запрос GET orders - c авторизацией. Должен прийти ответ со статусом StatusUnauthorized")
+		suite.T().Logf("Шлю запрос GET orders - c авторизацией.Но там пусто. Должен прийти ответ со статусом 204")
 		req = httpc.R().
 			SetHeader("Content-Type", "application/json").
 			SetHeader("Authorization", authHeader).
@@ -412,6 +413,37 @@ func (suite *TestRegSuite) TestHandler() {
 		}
 
 		suite.Assert().Equalf(http.StatusNoContent, resp.StatusCode(),
+			"Несоответствие статус кода ответа ожидаемому в хендлере '%s %s'", req.Method, req.URL)
+		body := []byte(`123456789`)
+		suite.T().Logf("Шлю запрос POST orders - без авторизации. Должен прийти ответ со статусом 401")
+		req = httpc.R().
+			SetBody(body).
+			SetHeader("Content-Type", "application/json").
+			SetContext(ctx)
+
+		resp, err = req.Post("/api/user/orders")
+		noRespErr = suite.Assert().NoError(err, "Ошибка при попытке сделать запрос")
+		if !noRespErr {
+			suite.T().Errorf(err.Error())
+		}
+
+		suite.Assert().Equalf(http.StatusUnauthorized, resp.StatusCode(),
+			"Несоответствие статус кода ответа ожидаемому в хендлере '%s %s'", req.Method, req.URL)
+
+		suite.T().Logf(" запрос POST orders свежий заказ -  202")
+		req = httpc.R().
+			SetBody([]byte(`12345678903`)).
+			SetHeader("Content-Type", "application/json").
+			SetHeader("Authorization", authHeader).
+			SetContext(ctx)
+
+		resp, err = req.Post("/api/user/orders")
+		noRespErr = suite.Assert().NoError(err, "Ошибка при попытке сделать запрос")
+		if !noRespErr {
+			suite.T().Errorf(err.Error())
+		}
+
+		suite.Assert().Equalf(http.StatusAccepted, resp.StatusCode(),
 			"Несоответствие статус кода ответа ожидаемому в хендлере '%s %s'", req.Method, req.URL)
 
 	})

@@ -27,11 +27,34 @@ Content-Type: text/plain
 import (
 	"net/http"
 
+	"github.com/GlebZigert/trueGophermart/internal/config"
+	"github.com/GlebZigert/trueGophermart/internal/logger"
+	"github.com/GlebZigert/trueGophermart/internal/model"
 	"github.com/GlebZigert/trueGophermart/internal/packerr"
+	"go.uber.org/zap"
 )
 
 func (h handler) OrderPost(w http.ResponseWriter, req *http.Request) {
 	var err error
 	defer packerr.AddErrToReqContext(req, &err)
+
+	//определить что за юзер
+	uid, ok := req.Context().Value(config.UIDkey).(int)
+	if !ok {
+		err = NoUidError
+
+		w.Header().Add("Content-Type", "application/json")
+		w.WriteHeader(http.StatusInternalServerError)
+
+		w.Write([]byte{})
+
+	}
+	logger.Log.Info("Ищу номер заказа для : ", zap.Int("uid", uid))
+
+	var order model.Order
+
+	if result := h.DB.Where("uid = ?", uid).First(&order); result.Error != nil {
+		logger.Log.Info("результат поиска : ", zap.String("err", result.Error.Error()))
+	}
 
 }
