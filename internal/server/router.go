@@ -21,7 +21,8 @@ func InitRouter(h *handler) {
 		//в бизнес-логику нужна аутентификация
 		r.Group(func(r chi.Router) {
 			r.Use(middleware.Auth)
-			r.Get("/api/user/orders", h.OrdersGet)
+			r.Get("/api/user/orders", h.OrderGet)
+			r.Post("/api/user/orders", h.OrderPost)
 		})
 
 		//в регистрацию-авторизацию не нужна аутентификация

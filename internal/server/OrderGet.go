@@ -8,7 +8,7 @@ import (
 	"github.com/GlebZigert/trueGophermart/internal/packerr"
 )
 
-func (h handler) OrdersGet(w http.ResponseWriter, req *http.Request) {
+func (h handler) OrderGet(w http.ResponseWriter, req *http.Request) {
 	var err error
 	defer packerr.AddErrToReqContext(req, &err)
 	var orders []model.Order
