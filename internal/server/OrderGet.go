@@ -14,7 +14,7 @@ import (
 
 var NoUidError error = errors.New("Этот реквест прошел проверку в auth но в хэндлере не смог взять uid из контекста")
 
-func (h handler) OrderGet(w http.ResponseWriter, req *http.Request) {
+func (srv *Server) OrderGet(w http.ResponseWriter, req *http.Request) {
 	var err error
 	defer packerr.AddErrToReqContext(req, &err)
 	var orders []model.Order
@@ -32,7 +32,7 @@ func (h handler) OrderGet(w http.ResponseWriter, req *http.Request) {
 	}
 	logger.Log.Info("Ищу номера заказов для : ", zap.Int("uid", id))
 	//определить что за юзер
-	if result := h.DB.Find(&orders); result.Error != nil {
+	if result := srv.DB.Find(&orders); result.Error != nil {
 		fmt.Println(result.Error)
 		err = result.Error
 

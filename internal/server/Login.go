@@ -5,7 +5,6 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/GlebZigert/trueGophermart/internal/auth"
 	"github.com/GlebZigert/trueGophermart/internal/logger"
 	"github.com/GlebZigert/trueGophermart/internal/model"
 	"github.com/GlebZigert/trueGophermart/internal/packerr"
@@ -14,7 +13,7 @@ import (
 
 var WrongPassword *model.UsersErr = &model.UsersErr{"Неверный пароль"}
 
-func (h handler) Login(w http.ResponseWriter, req *http.Request) {
+func (srv *Server) Login(w http.ResponseWriter, req *http.Request) {
 
 	var err error
 	defer packerr.AddErrToReqContext(req, &err)
@@ -41,7 +40,7 @@ func (h handler) Login(w http.ResponseWriter, req *http.Request) {
 
 	var finded *model.User
 
-	if result := h.DB.Where("login = ?", user.Login).First(&finded); result.Error != nil {
+	if result := srv.DB.Where("login = ?", user.Login).First(&finded); result.Error != nil {
 		//если не нашлось пользователя с таким логином
 		err = model.FoundNoUser
 		w.WriteHeader(http.StatusUnauthorized)
@@ -60,7 +59,7 @@ func (h handler) Login(w http.ResponseWriter, req *http.Request) {
 	}
 
 	//если пароли совпадают - авторизовываем - даем ключ
-	jwt, _ := auth.BuildJWTString(finded.ID)
+	jwt, _ := srv.auch.BuildJWTString(finded.ID)
 	//добавляю ключ
 	w.Header().Add("Authorization", string(jwt))
 	//ставлю статус 200

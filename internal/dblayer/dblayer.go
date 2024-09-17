@@ -1,24 +1,23 @@
 package dblayer
 
 import (
-	"log"
-
-	"github.com/GlebZigert/trueGophermart/internal/config"
 	"github.com/GlebZigert/trueGophermart/internal/model"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
-func Init() *gorm.DB {
+func NewDB(DatabaseDSN string) (db *gorm.DB, err error) {
 	//dbURL := "postgres://pg:pass@localhost:5432/crud"
 
-	db, err := gorm.Open(postgres.Open(config.DatabaseDSN), &gorm.Config{})
-
-	if err != nil {
-		log.Fatalln(err)
+	if db, err = gorm.Open(postgres.Open(DatabaseDSN), &gorm.Config{}); err != nil {
+		return
 	}
 
-	db.AutoMigrate(&model.User{})
-	db.AutoMigrate(&model.Order{})
-	return db
+	if err = db.AutoMigrate(&model.User{}); err != nil {
+		return
+	}
+	if err = db.AutoMigrate(&model.Order{}); err != nil {
+		return
+	}
+	return
 }

@@ -36,7 +36,7 @@ import (
 	"go.uber.org/zap"
 )
 
-func (h handler) OrderPost(w http.ResponseWriter, req *http.Request) {
+func (srv *Server) OrderPost(w http.ResponseWriter, req *http.Request) {
 	var err error
 	defer packerr.AddErrToReqContext(req, &err)
 
@@ -73,7 +73,7 @@ func (h handler) OrderPost(w http.ResponseWriter, req *http.Request) {
 
 	var order model.Order
 
-	result := h.DB.Where("number = ?", number).First(&order)
+	result := srv.DB.Where("number = ?", number).First(&order)
 	if result.Error == nil {
 		if order.UID == uid {
 			w.Header().Add("Content-Type", "application/json")
@@ -91,7 +91,7 @@ func (h handler) OrderPost(w http.ResponseWriter, req *http.Request) {
 	order.UID = uid
 	order.Number = number
 
-	if result := h.DB.Create(&order); result.Error != nil {
+	if result := srv.DB.Create(&order); result.Error != nil {
 
 		err = Conflict
 		w.WriteHeader(http.StatusInternalServerError)

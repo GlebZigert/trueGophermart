@@ -2,7 +2,7 @@ package config
 
 import (
 	"flag"
-	"fmt"
+	"log"
 	"os"
 )
 
@@ -16,34 +16,42 @@ const (
 	// ...
 )
 
-var (
+// Person — структура, описывающая человека.
+type Config struct {
 	RunAddr      string
 	FlagLogLevel string
 	DatabaseDSN  string
 	TOKENEXP     int
 
 	SECRETKEY string
-)
+}
 
-func ParseFlags() {
-	flag.StringVar(&RunAddr, "a", "localhost:8080", "address and port to run server")
-	flag.StringVar(&FlagLogLevel, "l", "info", "log level")
-	flag.StringVar(&DatabaseDSN, "d", "", "database dsn")
+// NewPerson возвращает новую структуру Person.
+func NewConfig() *Config {
+	cfg := Config{}
+	cfg.ParseFlags()
+	return &cfg
+}
 
-	flag.StringVar(&SECRETKEY, "SECRETKEY", "supersecretkey", "ключ")
-	flag.IntVar(&TOKENEXP, "TOKENEXP", 3, "время жизни токена в часах")
+func (c *Config) ParseFlags() {
+	flag.StringVar(&c.RunAddr, "a", "localhost:8080", "address and port to run server")
+	flag.StringVar(&c.FlagLogLevel, "l", "info", "log level")
+	flag.StringVar(&c.DatabaseDSN, "d", "", "database dsn")
+
+	flag.StringVar(&c.SECRETKEY, "SECRETKEY", "supersecretkey", "ключ")
+	flag.IntVar(&c.TOKENEXP, "TOKENEXP", 3, "время жизни токена в часах")
 	flag.Parse()
 
-	fmt.Println("RunAddr", RunAddr)
-	fmt.Println("DatabaseDSN", DatabaseDSN)
+	log.Println("RunAddr", c.RunAddr)
+	log.Println("DatabaseDSN", c.DatabaseDSN)
 	if envRunAddr := os.Getenv("RUN_ADDR"); envRunAddr != "" {
-		RunAddr = envRunAddr
+		c.RunAddr = envRunAddr
 	}
 
 	if envDatabaseDSN := os.Getenv("DATABASE_URI"); envDatabaseDSN != "" {
-		DatabaseDSN = envDatabaseDSN
+		c.DatabaseDSN = envDatabaseDSN
 	}
 
-	fmt.Println("RunAddr", RunAddr)
-	fmt.Println("DatabaseDSN", DatabaseDSN)
+	log.Println("RunAddr", c.RunAddr)
+	log.Println("DatabaseDSN", c.DatabaseDSN)
 }

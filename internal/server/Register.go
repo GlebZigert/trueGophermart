@@ -5,7 +5,6 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/GlebZigert/trueGophermart/internal/auth"
 	"github.com/GlebZigert/trueGophermart/internal/logger"
 	"github.com/GlebZigert/trueGophermart/internal/model"
 	"github.com/GlebZigert/trueGophermart/internal/packerr"
@@ -14,7 +13,7 @@ import (
 
 var Conflict *model.UsersErr = &model.UsersErr{"Конфликт: логин занят"}
 
-func (h handler) Register(w http.ResponseWriter, req *http.Request) {
+func (srv *Server) Register(w http.ResponseWriter, req *http.Request) {
 	logger.Log.Info("register-->")
 
 	var err error
@@ -42,7 +41,7 @@ func (h handler) Register(w http.ResponseWriter, req *http.Request) {
 
 	var finded model.User
 
-	if result := h.DB.Where("login = ?", user.Login).First(&finded); result.Error == nil {
+	if result := srv.DB.Where("login = ?", user.Login).First(&finded); result.Error == nil {
 
 		//поднять ошибку о конфликте
 		err = Conflict
@@ -51,7 +50,7 @@ func (h handler) Register(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	if result := h.DB.Create(&user); result.Error != nil {
+	if result := srv.DB.Create(&user); result.Error != nil {
 
 		err = Conflict
 		w.WriteHeader(http.StatusInternalServerError)
@@ -59,7 +58,7 @@ func (h handler) Register(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	jwt, _ := auth.BuildJWTString(user.ID)
+	jwt, _ := srv.auch.BuildJWTString(user.ID)
 	//добавляю ключ
 	w.Header().Add("Authorization", string(jwt))
 	//ставлю статус 200

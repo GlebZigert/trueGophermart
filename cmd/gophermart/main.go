@@ -1,10 +1,12 @@
 package main
 
 import (
+	"log"
+
 	"github.com/GlebZigert/trueGophermart/internal/app"
 )
 
 func main() {
-
-	app.Run()
+	err := app.Run()
+	log.Fatalln(err.Error())
 }

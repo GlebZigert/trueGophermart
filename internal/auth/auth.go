@@ -5,12 +5,16 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/GlebZigert/trueGophermart/internal/config"
 	"github.com/GlebZigert/trueGophermart/internal/logger"
 	"github.com/GlebZigert/trueGophermart/internal/packerr"
 	"github.com/golang-jwt/jwt/v4"
 	"go.uber.org/zap"
 )
+
+type AuthController struct {
+	sekretKey string
+	tokenExp  int
+}
 
 var ErrAccessDenied = errors.New("access denied")
 
@@ -21,23 +25,27 @@ type Claims struct {
 	UserID int
 }
 
+func NewAuth(sekretKey string, tokenExp int) *AuthController {
+	return &AuthController{sekretKey, tokenExp}
+}
+
 var ErrBuildJWTString error = errors.New("ошибка формирования JWT")
 
 // BuildJWTString создаёт токен и возвращает его в виде строки.
-func BuildJWTString(id int) (string, error) {
+func (auc *AuthController) BuildJWTString(id int) (string, error) {
 	logger.Log.Info("BuildJWTString: ", zap.Int("id", id))
 	// создаём новый токен с алгоритмом подписи HS256 и утверждениями — Claims
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, Claims{
 		RegisteredClaims: jwt.RegisteredClaims{
 			// когда создан токен
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * time.Duration(config.TOKENEXP))),
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * time.Duration(auc.tokenExp))),
 		},
 		// собственное утверждение
 		UserID: id,
 	})
 
 	// создаём строку токена
-	tokenString, err := token.SignedString([]byte(config.SECRETKEY))
+	tokenString, err := token.SignedString([]byte(auc.sekretKey))
 	if err != nil {
 		return "", packerr.NewTimeError(ErrBuildJWTString)
 	}
@@ -46,14 +54,14 @@ func BuildJWTString(id int) (string, error) {
 	return tokenString, nil
 }
 
-func GetUserID(tokenString string) (int, error) {
+func (auc *AuthController) GetUserID(tokenString string) (int, error) {
 	claims := &Claims{}
 	token, err := jwt.ParseWithClaims(tokenString, claims,
 		func(t *jwt.Token) (interface{}, error) {
 			if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
 				return nil, packerr.NewTimeError(fmt.Errorf("unexpected signing method: %v", t.Header["alg"]))
 			}
-			return []byte(config.SECRETKEY), nil
+			return []byte(auc.sekretKey), nil
 		})
 	if err != nil {
 		return -1, packerr.NewTimeError(err)
