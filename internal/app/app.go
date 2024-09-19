@@ -15,7 +15,7 @@ func Run() (err error) {
 
 	cfg := config.NewConfig()
 	ctx := context.TODO()
-	logger := logger.NewZapLogger(cfg.FlagLogLevel, ctx)
+	logger := logger.NewLogrusLogger(cfg.FlagLogLevel, ctx)
 
 	db, err := dblayer.NewDB(cfg.DatabaseDSN)
 	if err != nil {
