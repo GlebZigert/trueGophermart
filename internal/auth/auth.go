@@ -5,10 +5,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/GlebZigert/trueGophermart/internal/logger"
 	"github.com/GlebZigert/trueGophermart/internal/packerr"
 	"github.com/golang-jwt/jwt/v4"
-	"go.uber.org/zap"
 )
 
 type AuthController struct {
@@ -33,7 +31,7 @@ var ErrBuildJWTString error = errors.New("ошибка формирования 
 
 // BuildJWTString создаёт токен и возвращает его в виде строки.
 func (auc *AuthController) BuildJWTString(id int) (string, error) {
-	logger.Log.Info("BuildJWTString: ", zap.Int("id", id))
+
 	// создаём новый токен с алгоритмом подписи HS256 и утверждениями — Claims
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, Claims{
 		RegisteredClaims: jwt.RegisteredClaims{

@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"net/http"
 	"testing"
 )
@@ -14,10 +13,10 @@ func TestAccrualConnetion(t *testing.T) {
 		t.Fatalf(err.Error())
 	}
 
-	fmt.Printf("Status Code: %d\r\n", response.StatusCode)
+	t.Logf("Status Code: %d\r\n", response.StatusCode)
 	for k, v := range response.Header {
 		// заголовок может иметь несколько значений,
 		// но для простоты запросим только первое
-		fmt.Printf("%s: %v\r\n", k, v[0])
+		t.Logf("%s: %v\r\n", k, v[0])
 	}
 }

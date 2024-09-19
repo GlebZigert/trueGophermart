@@ -2,14 +2,11 @@ package server
 
 import (
 	"errors"
-	"fmt"
 	"net/http"
 
 	"github.com/GlebZigert/trueGophermart/internal/config"
-	"github.com/GlebZigert/trueGophermart/internal/logger"
 	"github.com/GlebZigert/trueGophermart/internal/model"
 	"github.com/GlebZigert/trueGophermart/internal/packerr"
-	"go.uber.org/zap"
 )
 
 var NoUidError error = errors.New("Этот реквест прошел проверку в auth но в хэндлере не смог взять uid из контекста")
@@ -20,7 +17,7 @@ func (srv *Server) OrderGet(w http.ResponseWriter, req *http.Request) {
 	var orders []model.Order
 
 	//определить что за юзер
-	id, ok := req.Context().Value(config.UIDkey).(int)
+	uid, ok := req.Context().Value(config.UIDkey).(int)
 	if !ok {
 		err = NoUidError
 
@@ -30,10 +27,14 @@ func (srv *Server) OrderGet(w http.ResponseWriter, req *http.Request) {
 		w.Write([]byte{})
 
 	}
-	logger.Log.Info("Ищу номера заказов для : ", zap.Int("uid", id))
+
+	srv.logger.Info("Ищу номера заказов для : ", map[string]interface{}{
+		"uid": uid,
+	})
+
 	//определить что за юзер
 	if result := srv.DB.Find(&orders); result.Error != nil {
-		fmt.Println(result.Error)
+
 		err = result.Error
 
 	}

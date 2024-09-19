@@ -5,9 +5,7 @@ import (
 	"net/http"
 
 	"github.com/GlebZigert/trueGophermart/internal/config"
-	"github.com/GlebZigert/trueGophermart/internal/logger"
 	"github.com/GlebZigert/trueGophermart/internal/packerr"
-	"go.uber.org/zap"
 )
 
 func (mdl *Middleware) Auth(h http.Handler) http.Handler {
@@ -19,13 +17,13 @@ func (mdl *Middleware) Auth(h http.Handler) http.Handler {
 
 		// проверяем, что клиент умеет получать от сервера сжатые данные в формате gzip
 		authv := r.Header.Get("Authorization")
-		logger.Log.Info("auth: ", zap.String("", authv))
+		mdl.logger.Info("auth: ", map[string]interface{}{
+			"auth": authv,
+		})
 
 		id, err := mdl.auch.GetUserID(authv)
 
 		if err != nil {
-
-			logger.Log.Error("Auth: ", zap.String("", err.Error()))
 
 			w.Header().Add("Content-Type", "application/json")
 			w.WriteHeader(http.StatusUnauthorized)

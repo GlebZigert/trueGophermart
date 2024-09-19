@@ -1,6 +1,8 @@
 package app
 
 import (
+	"context"
+
 	"github.com/GlebZigert/trueGophermart/internal/auth"
 	"github.com/GlebZigert/trueGophermart/internal/config"
 	"github.com/GlebZigert/trueGophermart/internal/dblayer"
@@ -12,9 +14,8 @@ import (
 func Run() (err error) {
 
 	cfg := config.NewConfig()
-	if err := logger.Initialize(cfg.FlagLogLevel); err != nil {
-		return err
-	}
+	ctx := context.TODO()
+	logger := logger.NewZapLogger(cfg.FlagLogLevel, ctx)
 
 	db, err := dblayer.NewDB(cfg.DatabaseDSN)
 	if err != nil {
@@ -23,9 +24,9 @@ func Run() (err error) {
 
 	auc := auth.NewAuth(cfg.SECRETKEY, cfg.TOKENEXP)
 
-	mdl := middleware.NewMiddlewares(auc)
+	mdl := middleware.NewMiddlewares(auc, logger)
 
-	h, err := server.NewServer(db, cfg, mdl)
+	h, err := server.NewServer(db, cfg, mdl, logger)
 
 	if err != nil {
 		return

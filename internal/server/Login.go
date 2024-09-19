@@ -5,10 +5,8 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/GlebZigert/trueGophermart/internal/logger"
 	"github.com/GlebZigert/trueGophermart/internal/model"
 	"github.com/GlebZigert/trueGophermart/internal/packerr"
-	"go.uber.org/zap"
 )
 
 var WrongPassword *model.UsersErr = &model.UsersErr{"Неверный пароль"}
@@ -35,7 +33,11 @@ func (srv *Server) Login(w http.ResponseWriter, req *http.Request) {
 	}
 
 	//если пришла правильно составленная посылка
-	logger.Log.Info("try to logib: ", zap.String("login", user.Login), zap.String("password", user.Password))
+	srv.logger.Info("try to login: ", map[string]interface{}{
+
+		"login":    user.Login,
+		"password": user.Password,
+	})
 	//проверяем есть ли уже такой логин
 
 	var finded *model.User

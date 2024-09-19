@@ -8,7 +8,6 @@ import (
 	"github.com/GlebZigert/trueGophermart/internal/logger"
 	"github.com/GlebZigert/trueGophermart/internal/middleware"
 	"github.com/go-chi/chi"
-	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
 
@@ -18,29 +17,33 @@ type IAuth interface {
 }
 
 type Server struct {
-	auch IAuth
-	DB   *gorm.DB
-	cfg  *config.Config
-	mdl  *middleware.Middleware
+	auch   IAuth
+	DB     *gorm.DB
+	cfg    *config.Config
+	mdl    *middleware.Middleware
+	logger logger.Logger
 }
 
 var errNoAuthMiddleware = errors.New("В миддлеварах не определен auth")
 
-func NewServer(db *gorm.DB, cfg *config.Config, mdl *middleware.Middleware) (*Server, error) {
+func NewServer(db *gorm.DB, cfg *config.Config, mdl *middleware.Middleware, logger logger.Logger) (*Server, error) {
 	auch := mdl.GetAuch()
 	if auch == nil {
 		return nil, errNoAuthMiddleware
 	}
-	return &Server{auch, db, cfg, mdl}, nil
+	return &Server{auch, db, cfg, mdl, logger}, nil
 }
 
 func (srv *Server) Start() (err error) {
-	logger.Log.Info("Running server", zap.String("address", srv.cfg.RunAddr))
+	srv.logger.Info("Running server", map[string]interface{}{
+		"address": srv.cfg.RunAddr,
+	})
+
 	r := chi.NewRouter()
 
 	r.Group(func(r chi.Router) {
-		r.Use(middleware.ErrHandler)
-		r.Use(middleware.Log)
+		r.Use(srv.mdl.ErrHandler)
+		r.Use(srv.mdl.Log)
 
 		//в бизнес-логику нужна аутентификация
 		r.Group(func(r chi.Router) {

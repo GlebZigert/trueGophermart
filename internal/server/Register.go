@@ -5,16 +5,13 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/GlebZigert/trueGophermart/internal/logger"
 	"github.com/GlebZigert/trueGophermart/internal/model"
 	"github.com/GlebZigert/trueGophermart/internal/packerr"
-	"go.uber.org/zap"
 )
 
 var Conflict *model.UsersErr = &model.UsersErr{"Конфликт: логин занят"}
 
 func (srv *Server) Register(w http.ResponseWriter, req *http.Request) {
-	logger.Log.Info("register-->")
 
 	var err error
 	defer packerr.AddErrToReqContext(req, &err)
@@ -36,7 +33,12 @@ func (srv *Server) Register(w http.ResponseWriter, req *http.Request) {
 	}
 
 	//если пришла правильная посылка
-	logger.Log.Info("try to register: ", zap.String("login", user.Login), zap.String("password", user.Password))
+
+	srv.logger.Info("try to register : ", map[string]interface{}{
+		"login":    user.Login,
+		"password": user.Password,
+	})
+
 	//проверяем есть ли уже такой логин
 
 	var finded model.User

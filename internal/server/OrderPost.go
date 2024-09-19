@@ -30,10 +30,8 @@ import (
 	"net/http"
 
 	"github.com/GlebZigert/trueGophermart/internal/config"
-	"github.com/GlebZigert/trueGophermart/internal/logger"
 	"github.com/GlebZigert/trueGophermart/internal/model"
 	"github.com/GlebZigert/trueGophermart/internal/packerr"
-	"go.uber.org/zap"
 )
 
 func (srv *Server) OrderPost(w http.ResponseWriter, req *http.Request) {
@@ -69,7 +67,10 @@ func (srv *Server) OrderPost(w http.ResponseWriter, req *http.Request) {
 		return // err
 	}
 
-	logger.Log.Info("Ищу номер заказа  : ", zap.Int("uid", uid), zap.Int("number", number))
+	srv.logger.Info("Ищу номер заказа : ", map[string]interface{}{
+		"uid":    uid,
+		"number": number,
+	})
 
 	var order model.Order
 
@@ -99,7 +100,6 @@ func (srv *Server) OrderPost(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	logger.Log.Info("результат поиска : ", zap.String("err", result.Error.Error()))
 	w.Header().Add("Content-Type", "application/json")
 	w.WriteHeader(http.StatusAccepted)
 	w.Write([]byte{})

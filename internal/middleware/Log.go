@@ -6,9 +6,7 @@ import (
 	"time"
 
 	"github.com/GlebZigert/trueGophermart/internal/config"
-	"github.com/GlebZigert/trueGophermart/internal/logger"
 	"github.com/GlebZigert/trueGophermart/internal/packerr"
-	"go.uber.org/zap"
 )
 
 type (
@@ -42,7 +40,7 @@ func (r *loggingResponseWriter) WriteHeader(statusCode int) {
 }
 
 // RequestLogger — middleware-логер для входящих HTTP-запросов.
-func Log(h http.Handler) http.Handler {
+func (mdl *Middleware) Log(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		var err error
 		defer packerr.AddErrToReqContext(r, &err)
@@ -60,7 +58,10 @@ func Log(h http.Handler) http.Handler {
 
 		id, ok := r.Context().Value(config.UIDkey).(int)
 		if ok {
-			logger.Log.Info("user id: ", zap.Int("", id))
+			mdl.logger.Info("auth: ", map[string]interface{}{
+				"id": id,
+			})
+
 		}
 
 		//
@@ -73,15 +74,15 @@ func Log(h http.Handler) http.Handler {
 		*/
 		h.ServeHTTP(&lw, r)
 
-		logger.Log.Info("got incoming HTTP request",
-			zap.String("method", r.Method),
-			zap.String("path", r.URL.Path),
-			zap.String("dt", time.Since(t1).String()),
-			zap.String("size", strconv.Itoa(responseData.size)),
-			zap.Int("userID", id),
-			zap.String("status", strconv.Itoa(responseData.status)),
-			zap.String("body", responseData.body),
-		)
+		mdl.logger.Info("got incoming HTTP request: ", map[string]interface{}{
+			"method": r.Method,
+			"path":   r.URL.Path,
+			"dt":     time.Since(t1).String(),
+			"size":   strconv.Itoa(responseData.size),
+			"userID": id,
+			"status": strconv.Itoa(responseData.status),
+			"body":   responseData.body,
+		})
 
 	})
 }

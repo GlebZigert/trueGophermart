@@ -5,8 +5,6 @@ import (
 	"net/http"
 
 	"github.com/GlebZigert/trueGophermart/internal/config"
-	"github.com/GlebZigert/trueGophermart/internal/logger"
-	"go.uber.org/zap"
 )
 
 type MyHandlerFunc func(w http.ResponseWriter, r *http.Request)
@@ -16,7 +14,7 @@ func (fn MyHandlerFunc) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	fn(w, r) // Call handler function.
 }
 
-func ErrHandler(f http.Handler) http.Handler {
+func (mdl *Middleware) ErrHandler(f http.Handler) http.Handler {
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		var err error
@@ -26,7 +24,9 @@ func ErrHandler(f http.Handler) http.Handler {
 		f.ServeHTTP(w, r)
 
 		if err != nil {
-			logger.Log.Error("ErrHandler: ", zap.String("", err.Error()))
+			mdl.logger.Error("auth: ", map[string]interface{}{
+				"err": err.Error(),
+			})
 		}
 	})
 }
