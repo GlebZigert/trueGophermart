@@ -73,6 +73,7 @@ func (aq *Accrual) Run(ctx context.Context) {
 				"orders": orders,
 			})
 
+			var balanceInc float32
 			for _, order := range orders {
 				req := aq.cfg.AccrualAddress + "/api/orders/" + order.Number
 				aq.logger.Info("accrual : ", map[string]interface{}{
@@ -123,7 +124,19 @@ func (aq *Accrual) Run(ctx context.Context) {
 				order.Status = answer.Status
 
 				aq.DB.Save(order)
+				balanceInc += order.Accrual
 
+			}
+
+			if balanceInc > 0 {
+
+				var balance model.Balance
+
+				aq.DB.First(&balance)
+
+				balance.Current += balanceInc
+
+				aq.DB.Save(balance)
 			}
 
 		}
