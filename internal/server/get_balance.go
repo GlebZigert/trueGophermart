@@ -51,6 +51,11 @@ func (srv *Server) BalanceGet(w http.ResponseWriter, req *http.Request) {
 
 	resp, err = json.Marshal(balance)
 
+	srv.logger.Info("Found balance : ", map[string]interface{}{
+		"current":   balance.Current,
+		"withdrawn": balance.Withdrawn,
+	})
+
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write(resp)
