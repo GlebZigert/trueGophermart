@@ -28,6 +28,7 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
+	"strconv"
 
 	"github.com/GlebZigert/trueGophermart/internal/config"
 	"github.com/GlebZigert/trueGophermart/internal/model"
@@ -50,7 +51,8 @@ func (srv *Server) OrderPost(w http.ResponseWriter, req *http.Request) {
 	}
 
 	//сомтрим на номер заказа
-	var number string
+
+	var numberValue int
 
 	body, err := io.ReadAll(req.Body)
 	if err != nil {
@@ -61,11 +63,13 @@ func (srv *Server) OrderPost(w http.ResponseWriter, req *http.Request) {
 
 	}
 
-	if err = json.Unmarshal(body, &number); err != nil {
+	if err = json.Unmarshal(body, &numberValue); err != nil {
 
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return // err
 	}
+
+	number := strconv.Itoa(numberValue)
 
 	srv.logger.Info("Ищу номер заказа : ", map[string]interface{}{
 		"uid":    uid,
