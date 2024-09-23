@@ -81,8 +81,8 @@ func (aq *Accrual) Run(ctx context.Context) {
 				})
 				resp, err := http.Get(req)
 				if err != nil {
-					aq.logger.Error("accrual : ", map[string]interface{}{
-						"err": err.Error,
+					aq.logger.Error("accrual http.Get(req): ", map[string]interface{}{
+						"err": err.Error(),
 					})
 					continue
 				}
@@ -97,8 +97,8 @@ func (aq *Accrual) Run(ctx context.Context) {
 
 				body, err := io.ReadAll(resp.Body)
 				if err != nil {
-					aq.logger.Error("accrual : ", map[string]interface{}{
-						"err": err.Error,
+					aq.logger.Error("accrual io.ReadAll: ", map[string]interface{}{
+						"err": err.Error(),
 					})
 					continue
 
@@ -109,8 +109,8 @@ func (aq *Accrual) Run(ctx context.Context) {
 				err = json.Unmarshal(body, &answer)
 
 				if err != nil {
-					aq.logger.Error("accrual : ", map[string]interface{}{
-						"err": err.Error,
+					aq.logger.Error("accrual json.Unmarshal: ", map[string]interface{}{
+						"err": err.Error(),
 					})
 					continue
 
