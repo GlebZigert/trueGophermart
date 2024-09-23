@@ -5,7 +5,7 @@ const ORDER_REGISTERED string = "REGISTERED"
 type Order struct {
 	ID      int    `db:"id"`
 	UID     int    `db:"uid"`
-	Number  int    `db:"number"`
+	Number  string `db:"number"`
 	Accrual int    `db:"aqrual"`
 	Status  string `db:"status"`
 }

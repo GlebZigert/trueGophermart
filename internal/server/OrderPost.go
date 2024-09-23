@@ -50,7 +50,7 @@ func (srv *Server) OrderPost(w http.ResponseWriter, req *http.Request) {
 	}
 
 	//сомтрим на номер заказа
-	var number int
+	var number string
 
 	body, err := io.ReadAll(req.Body)
 	if err != nil {
@@ -90,8 +90,8 @@ func (srv *Server) OrderPost(w http.ResponseWriter, req *http.Request) {
 		} else {
 
 			srv.logger.Info("Заказ уже был принят от другого пользователя : ", map[string]interface{}{
-				"uid":    uid,
-				"number": order.UID,
+				"uid":    order.UID,
+				"number": order.Number,
 			})
 
 			w.Header().Add("Content-Type", "application/json")

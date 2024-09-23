@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
-	"strconv"
 
 	"time"
 
@@ -75,7 +74,7 @@ func (aq *Accrual) Run(ctx context.Context) {
 			})
 
 			for _, order := range orders {
-				req := aq.cfg.AccrualAddress + "/api/orders/" + strconv.Itoa(order.Number)
+				req := aq.cfg.AccrualAddress + "/api/orders/" + order.Number
 				aq.logger.Info("accrual : ", map[string]interface{}{
 					"req": req,
 				})
