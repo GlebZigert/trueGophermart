@@ -47,7 +47,6 @@ func (srv *Server) OrderGet(w http.ResponseWriter, req *http.Request) {
 
 	if len(orders) == 0 {
 		err = model.FoundNoOrder
-		w.Header().Add("Content-Type", "application/json")
 		w.WriteHeader(http.StatusNoContent)
 
 		w.Write([]byte{})
@@ -67,7 +66,7 @@ func (srv *Server) OrderGet(w http.ResponseWriter, req *http.Request) {
 	})
 
 	w.WriteHeader(http.StatusOK)
-
+	w.Header().Add("Content-Type", "application/json")
 	w.Write(resp)
 
 	//что то идет не так - 500
