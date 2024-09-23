@@ -3,11 +3,11 @@ package model
 const ORDER_REGISTERED string = "REGISTERED"
 
 type Order struct {
-	ID      int    `db:"id"`
-	UID     int    `db:"uid"`
-	Number  string `db:"number"`
-	Accrual int    `db:"aqrual"`
-	Status  string `db:"status"`
+	ID      int     `db:"id"`
+	UID     int     `db:"uid"`
+	Number  string  `db:"number"`
+	Accrual float32 `db:"aqrual"`
+	Status  string  `db:"status"`
 }
 
 type Answer struct {

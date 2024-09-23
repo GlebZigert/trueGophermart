@@ -119,7 +119,7 @@ func (aq *Accrual) Run(ctx context.Context) {
 					"answer": answer,
 				})
 
-				order.Accrual = int(answer.Accrual)
+				order.Accrual = answer.Accrual
 				order.Status = answer.Status
 
 				aq.DB.Save(order)
