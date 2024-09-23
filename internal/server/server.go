@@ -50,6 +50,7 @@ func (srv *Server) Start() (err error) {
 			r.Use(srv.mdl.Auth)
 			r.Get("/api/user/orders", srv.OrderGet)
 			r.Post("/api/user/orders", srv.OrderPost)
+			r.Get("/api/user/balance", srv.BalanceGet)
 		})
 
 		//в регистрацию-авторизацию не нужна аутентификация
