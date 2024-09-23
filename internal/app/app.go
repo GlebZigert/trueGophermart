@@ -3,6 +3,7 @@ package app
 import (
 	"context"
 
+	"github.com/GlebZigert/trueGophermart/internal/accrual"
 	"github.com/GlebZigert/trueGophermart/internal/auth"
 	"github.com/GlebZigert/trueGophermart/internal/config"
 	"github.com/GlebZigert/trueGophermart/internal/dblayer"
@@ -31,6 +32,9 @@ func Run() (err error) {
 	if err != nil {
 		return
 	}
+
+	accrual.NewAccrual(db, cfg, logger, ctx)
+
 	err = h.Start()
 
 	return

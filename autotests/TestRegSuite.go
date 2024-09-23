@@ -3,12 +3,20 @@ package autotests
 import (
 	"context"
 	"errors"
+	"fmt"
+	"io"
 	"net/http"
+	"net/http/httputil"
 	"os"
+	"strconv"
 	"syscall"
+	"testing"
 	"time"
 
 	"github.com/GlebZigert/trueGophermart/internal/fork"
+	"github.com/GlebZigert/trueGophermart/internal/model"
+	"github.com/GlebZigert/trueGophermart/internal/random"
+
 	"github.com/go-resty/resty/v2"
 
 	"github.com/stretchr/testify/suite"
@@ -44,16 +52,20 @@ Content-Type: application/json
 
 type TestRegSuite struct {
 	suite.Suite
-	psqlcontainer *psqldocker.Container
-	serverAddress string
-	serverProcess *fork.BackgroundProcess
+	psqlcontainer        *psqldocker.Container
+	serverAddress        string
+	serverProcess        *fork.BackgroundProcess
+	accrualProcess       *fork.BackgroundProcess
+	accrualServerAddress string
 }
 
 func (suite *TestRegSuite) SetupSuite() {
 	suite.T().Logf("TestEnvRunAddrSuite SetupSuite")
 	suite.Require().NotEmpty(flagTargetBinaryPath, "-binary-path non-empty flag required")
 	suite.Require().NotEmpty(flagServerPort, "-server-port non-empty flag required")
-	suite.Require().NotEmpty(flagGophermartDatabaseURI, "-gophermart-database-uri non-empty flag required")
+	suite.Require().NotEmpty(flagAccrualBinaryPath, "-accrual-binary-path non-empty flag required")
+	suite.Require().NotEmpty(flagAccrualBinaryPath, "-accrual-binary-path non-empty flag required")
+	//suite.Require().NotEmpty(flagGophermartDatabaseURI, "-gophermart-database-uri non-empty flag required")
 	// приравниваем адрес сервера
 	suite.serverAddress = "127.0.0.1:" + flagServerPort
 
@@ -63,42 +75,79 @@ func (suite *TestRegSuite) SetupSuite() {
 		dbName        = "tst"
 		containerName = "psql_docker_tests"
 	)
+
+	// run a new psql docker container.
+	var err error
+	suite.psqlcontainer, err = psqldocker.NewContainer(
+		usr,
+		password,
+		dbName,
+		psqldocker.WithContainerName(containerName),
+	)
+
+	if err != nil {
+		suite.T().Errorf("Не запустился контейнер с базой")
+		return
+	}
+
+	// compose the psql dsn.
+	dsn := fmt.Sprintf(
+		"user=%s "+
+			"password=%s "+
+			"dbname=%s "+
+			"host=localhost "+
+			"port=%s "+
+			"sslmode=disable",
+		usr,
+		password,
+		dbName,
+		suite.psqlcontainer.Port(),
+	)
 	/*
-		// run a new psql docker container.
-		var err error
-		suite.psqlcontainer, err = psqldocker.NewContainer(
-			usr,
-			password,
-			dbName,
-			psqldocker.WithContainerName(containerName),
-		)
+		// start accrual server
+		{
 
-		if err != nil {
-			suite.T().Errorf("Не запустился контейнер с базой")
-			return
+			suite.T().Logf("flagAccrualBinaryPath : %s", flagAccrualBinaryPath)
+			suite.T().Logf("flagAccrualHost       : %s", "localhost")
+			suite.T().Logf("flagAccrualPort       : %s", "8081")
+			suite.T().Logf("flagAccrualDatabaseURI: %s", dsn)
+
+			suite.accrualServerAddress = "http://" + flagAccrualHost + ":" + flagAccrualPort
+
+			envs := append(os.Environ(),
+				"RUN_ADDRESS="+flagAccrualHost+":"+flagAccrualPort,
+				"DATABASE_URI="+flagAccrualDatabaseURI,
+			)
+			p := fork.NewBackgroundProcess(context.Background(), flagAccrualBinaryPath,
+				fork.WithEnv(envs...),
+			)
+
+			ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
+			defer cancel()
+
+			err := p.Start(ctx)
+			if err != nil {
+				suite.T().Errorf("Невозможно запустить процесс командой %s: %s. Переменные окружения: %+v", p, err, envs)
+				return
+			}
+
+			port := flagAccrualPort
+			err = p.WaitPort(ctx, "tcp", port)
+			if err != nil {
+				suite.T().Errorf("Не удалось дождаться пока порт %s станет доступен для запроса: %s", port, err)
+				return
+			}
+
+			suite.accrualProcess = p
+
 		}
-
-		// compose the psql dsn.
-		dsn := fmt.Sprintf(
-			"user=%s "+
-				"password=%s "+
-				"dbname=%s "+
-				"host=localhost "+
-				"port=%s "+
-				"sslmode=disable",
-			usr,
-			password,
-			dbName,
-			suite.psqlcontainer.Port(),
-		)
 	*/
-
 	// запускаем процесс тестируемого сервера
 	{
 
 		envs := append(os.Environ(), []string{
 			"RUN_ADDR=" + suite.serverAddress,
-			"DATABASE_URI=" + flagGophermartDatabaseURI,
+			"DATABASE_URI=" + dsn,
 		}...)
 		p := fork.NewBackgroundProcess(context.Background(), flagTargetBinaryPath,
 			fork.WithEnv(envs...),
@@ -480,6 +529,8 @@ func (suite *TestRegSuite) TestHandler() {
 			suite.T().Errorf(err.Error())
 		}
 
+		//orderNum, err := generateOrderNumber(suite.T())
+
 		suite.Assert().Equalf(http.StatusOK, resp.StatusCode(), "")
 
 		SecondAuthHeader := resp.Header().Get("Authorization")
@@ -487,7 +538,7 @@ func (suite *TestRegSuite) TestHandler() {
 
 		suite.T().Logf(" запрос POST orders тот же номер заказа но другой пользователь -  409")
 		req = httpc.R().
-			SetBody([]byte(`12345678903`)).
+			SetBody(`12345678903`).
 			SetHeader("Content-Type", "application/json").
 			SetHeader("Authorization", SecondAuthHeader).
 			SetContext(ctx)
@@ -515,5 +566,128 @@ func (suite *TestRegSuite) TestHandler() {
 
 		suite.Assert().Equalf(http.StatusOK, resp.StatusCode(),
 			"Несоответствие статус кода ответа ожидаемому в хендлере '%s %s'", req.Method, req.URL)
+
+		//
+
+		expectedAccrual := float32(729.98)
+		ctx, cancel = context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+
+		ticker := time.NewTicker(time.Second)
+		defer ticker.Stop()
+		fl := true
+		for fl {
+			select {
+			case <-ctx.Done():
+				suite.T().Errorf("Не удалось дождаться окончания расчета начисления")
+				fl = false
+			case <-ticker.C:
+				var orders []model.Order
+
+				ctx, cancel := context.WithTimeout(ctx, time.Second)
+
+				req := httpc.R().
+					SetContext(ctx).
+					SetHeader("Authorization", authHeader)
+				//	SetResult(&orders)
+
+				resp, err := req.Get("/api/user/orders")
+				cancel()
+
+				noRespErr := suite.Assert().NoErrorf(err, "Ошибка при попытке сделать запрос на получение статуса расчета начисления в системе лояльности")
+				validStatus := suite.Assert().Containsf([]int{http.StatusOK, http.StatusNoContent}, resp.StatusCode(),
+					"Несоответствие статус кода ответа ожидаемому в хендлере '%s %s'", req.Method, req.URL,
+				)
+				validContentType := suite.Assert().Containsf(resp.Header().Get("Content-Type"), "application/json",
+					"Заголовок ответа Content-Type содержит несоответствующее значение",
+				)
+
+				if !noRespErr || !validStatus || !validContentType {
+					dump := dumpRequest(suite.T(), req.RawRequest, nil)
+					suite.T().Logf("Оригинальный запрос:\n\n%s", dump)
+					continue
+				}
+
+				// wait for miracle
+				if resp.StatusCode() != http.StatusOK || len(orders) == 0 ||
+					orders[0].Status != "PROCESSED" {
+					continue
+				}
+
+				o := orders[0]
+				suite.Assert().Equal(`12345678903`, o.Number, "Номер заказа не соответствует ожидаемому")
+				suite.Assert().Equal("PROCESSED", o.Status, "Статус заказа не соответствует ожидаемому")
+				suite.Assert().Equal(expectedAccrual, o.Accrual, "Начисление за заказ не соответствует ожидаемому")
+
+				fl = false
+			}
+		}
+
+		suite.T().Errorf("Не удалось дождаться окончания расчета начисления!")
+
 	})
+}
+
+// dumpRequest is a shorthand to httputil.DumpRequest
+func dumpRequest(t *testing.T, req *http.Request, body io.Reader) []byte {
+	t.Helper()
+	if req == nil {
+		return nil
+	}
+
+	dump, _ := httputil.DumpRequest(req, false)
+	if body != nil {
+		b, err := io.ReadAll(body)
+		if err == nil {
+			dump = append(dump, '\n')
+			dump = append(dump, b...)
+			dump = append(dump, '\n')
+			dump = append(dump, '\n')
+		}
+	}
+
+	return dump
+}
+
+func generateOrderNumber(t *testing.T) (string, error) {
+	t.Helper()
+	ds := random.DigitString(5, 15)
+	cd, err := luhnCheckDigit(ds)
+	if err != nil {
+		return "", fmt.Errorf("cannot calculate check digit: %s", err)
+	}
+	return ds + strconv.Itoa(cd), nil
+}
+
+func luhnCheckDigit(s string) (int, error) {
+	number, err := strconv.Atoi(s)
+	if err != nil {
+		return 0, err
+	}
+
+	checkNumber := luhnChecksum(number)
+
+	if checkNumber == 0 {
+		return 0, nil
+	}
+	return 10 - checkNumber, nil
+}
+
+func luhnChecksum(number int) int {
+	var luhn int
+
+	for i := 0; number > 0; i++ {
+		cur := number % 10
+
+		if i%2 == 0 { // even
+			cur = cur * 2
+			if cur > 9 {
+				cur = cur%10 + cur/10
+			}
+		}
+
+		luhn += cur
+		number = number / 10
+	}
+	return luhn % 10
 }

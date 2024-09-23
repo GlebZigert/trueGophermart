@@ -1,6 +1,7 @@
 package server
 
 import (
+	"encoding/json"
 	"errors"
 	"net/http"
 
@@ -28,16 +29,21 @@ func (srv *Server) OrderGet(w http.ResponseWriter, req *http.Request) {
 
 	}
 
+	//искать в  дб записи заказов от этого юзера
 	srv.logger.Info("Ищу номера заказов для : ", map[string]interface{}{
 		"uid": uid,
 	})
 
-	//определить что за юзер
-	if result := srv.DB.Find(&orders); result.Error != nil {
+	if result := srv.DB.Where("UID = ?", uid).Find(&orders); result.Error != nil {
 
 		err = result.Error
+		w.WriteHeader(http.StatusInternalServerError)
 
+		w.Write([]byte{})
+		return
 	}
+
+	//если нет записей - 204
 
 	if len(orders) == 0 {
 		err = model.FoundNoOrder
@@ -48,11 +54,21 @@ func (srv *Server) OrderGet(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	//искать в  дб записи заказов от этого юзера
+	resp, err := json.Marshal(orders)
+	if err != nil {
 
-	//если нет записей - 204
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return //err
 
-	//есть записи - 200
+	}
+
+	srv.logger.Info("Найдены заказы : ", map[string]interface{}{
+		"orders": string(resp),
+	})
+
+	w.WriteHeader(http.StatusOK)
+
+	w.Write(resp)
 
 	//что то идет не так - 500
 

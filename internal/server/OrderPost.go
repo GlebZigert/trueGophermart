@@ -77,11 +77,23 @@ func (srv *Server) OrderPost(w http.ResponseWriter, req *http.Request) {
 	result := srv.DB.Where("number = ?", number).First(&order)
 	if result.Error == nil {
 		if order.UID == uid {
+
+			srv.logger.Info("Заказ уже был принят : ", map[string]interface{}{
+				"uid":    uid,
+				"number": number,
+			})
+
 			w.Header().Add("Content-Type", "application/json")
 			w.WriteHeader(http.StatusOK)
 			w.Write([]byte{})
 			return
 		} else {
+
+			srv.logger.Info("Заказ уже был принят от другого пользователя : ", map[string]interface{}{
+				"uid":    uid,
+				"number": order.UID,
+			})
+
 			w.Header().Add("Content-Type", "application/json")
 			w.WriteHeader(http.StatusConflict)
 			w.Write([]byte{})
@@ -91,6 +103,7 @@ func (srv *Server) OrderPost(w http.ResponseWriter, req *http.Request) {
 	}
 	order.UID = uid
 	order.Number = number
+	order.Status = model.ORDER_REGISTERED
 
 	if result := srv.DB.Create(&order); result.Error != nil {
 
@@ -99,6 +112,11 @@ func (srv *Server) OrderPost(w http.ResponseWriter, req *http.Request) {
 		w.Write([]byte{})
 		return
 	}
+
+	srv.logger.Info("Заказ принят : ", map[string]interface{}{
+		"uid":    uid,
+		"number": number,
+	})
 
 	w.Header().Add("Content-Type", "application/json")
 	w.WriteHeader(http.StatusAccepted)

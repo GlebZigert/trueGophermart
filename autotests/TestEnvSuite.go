@@ -30,6 +30,7 @@ func (suite *TestEnvSuite) SetupSuite() {
 	suite.Require().NotEmpty(flagTargetBinaryPath, "-binary-path non-empty flag required")
 	suite.Require().NotEmpty(flagServerPort, "-server-port non-empty flag required")
 	suite.Require().NotEmpty(flagGophermartDatabaseURI, "-gophermart-database-uri non-empty flag required")
+
 	// приравниваем адрес сервера
 	suite.serverAddress = "localhost:" + flagServerPort
 
