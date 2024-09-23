@@ -11,9 +11,9 @@ type Order struct {
 }
 
 type Answer struct {
-	Number  string `json:"order"`
-	Accrual int    `json:"accrual"`
-	Status  string `json:"status"`
+	Number  string  `json:"order"`
+	Accrual float32 `json:"accrual"`
+	Status  string  `json:"status"`
 }
 
 type OrderErr struct {
