@@ -124,17 +124,23 @@ func (aq *Accrual) Run(ctx context.Context) {
 				order.Status = answer.Status
 
 				aq.DB.Save(order)
-				balanceInc += order.Accrual
+				balanceInc = balanceInc + order.Accrual
 
 			}
-
+			aq.logger.Info("balanceInc : ", map[string]interface{}{
+				"balanceInc": balanceInc,
+			})
 			if balanceInc > 0 {
 
 				var balance model.Balance
 
 				aq.DB.First(&balance)
 
-				balance.Current += balanceInc
+				balance.Current = balance.Current + balanceInc
+
+				aq.logger.Info("balance : ", map[string]interface{}{
+					"balance": balance.Current,
+				})
 
 				aq.DB.Save(balance)
 			}
