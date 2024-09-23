@@ -36,10 +36,10 @@ func NewConfig() *Config {
 }
 
 func (c *Config) ParseFlags() {
-	flag.StringVar(&c.RunAddr, "a", "localhost:8081", "address and port to run server")
+	flag.StringVar(&c.RunAddr, "a", "localhost:8080", "address and port to run server")
 	flag.StringVar(&c.FlagLogLevel, "l", "info", "log level")
 	flag.StringVar(&c.DatabaseDSN, "d", "", "database dsn")
-	flag.StringVar(&c.AccrualAddress, "r", "http://localhost:8080", "accrual system address")
+	flag.StringVar(&c.AccrualAddress, "r", "http://localhost:8081", "accrual system address")
 
 	flag.StringVar(&c.SECRETKEY, "SECRETKEY", "supersecretkey", "ключ")
 	flag.IntVar(&c.TOKENEXP, "TOKENEXP", 3, "время жизни токена в часах")
