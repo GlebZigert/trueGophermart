@@ -39,6 +39,7 @@ type Accrual struct {
 func NewAccrual(db *gorm.DB, cfg *config.Config, logger logger.Logger, ctx context.Context) (*Accrual, error) {
 
 	aq := &Accrual{db, cfg, logger}
+
 	go aq.Run(ctx)
 
 	return aq, nil
@@ -134,7 +135,7 @@ func (aq *Accrual) Run(ctx context.Context) {
 
 				var balance model.Balance
 
-				aq.DB.First(&balance)
+				aq.DB.FirstOrCreate(&balance)
 
 				balance.Current = balance.Current + balanceInc
 

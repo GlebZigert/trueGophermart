@@ -47,7 +47,7 @@ func (srv *Server) BalanceGet(w http.ResponseWriter, req *http.Request) {
 
 	var balance model.Balance
 
-	srv.DB.First(&balance)
+	srv.DB.FirstOrCreate(&balance)
 
 	resp, err = json.Marshal(balance)
 
