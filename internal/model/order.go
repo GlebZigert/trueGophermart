@@ -10,6 +10,12 @@ type Order struct {
 	Status  string `db:"status"`
 }
 
+type Answer struct {
+	Number  int    `db:"number"`
+	Accrual int    `db:"aqrual"`
+	Status  string `db:"status"`
+}
+
 type OrderErr struct {
 	Err string
 }

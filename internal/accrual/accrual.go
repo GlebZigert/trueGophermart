@@ -2,6 +2,8 @@ package accrual
 
 import (
 	"context"
+	"encoding/json"
+	"io"
 	"net/http"
 	"strconv"
 
@@ -87,6 +89,35 @@ func (aq *Accrual) Run(ctx context.Context) {
 
 				aq.logger.Info("accrual : ", map[string]interface{}{
 					"resp": resp,
+				})
+
+				if resp.StatusCode != http.StatusOK {
+					continue
+				}
+
+				body, err := io.ReadAll(resp.Body)
+				if err != nil {
+					aq.logger.Error("accrual : ", map[string]interface{}{
+						"err": err.Error,
+					})
+					continue
+
+				}
+
+				var answer model.Answer
+
+				err = json.Unmarshal(body, &answer)
+
+				if err != nil {
+					aq.logger.Error("accrual : ", map[string]interface{}{
+						"err": err.Error,
+					})
+					continue
+
+				}
+
+				aq.logger.Info("answer : ", map[string]interface{}{
+					"answer": answer,
 				})
 
 			}
