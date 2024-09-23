@@ -65,8 +65,8 @@ func (srv *Server) OrderGet(w http.ResponseWriter, req *http.Request) {
 		"orders": string(resp),
 	})
 
-	w.WriteHeader(http.StatusOK)
 	w.Header().Add("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
 	w.Write(resp)
 
 	//что то идет не так - 500
