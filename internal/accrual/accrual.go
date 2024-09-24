@@ -117,8 +117,10 @@ func (aq *Accrual) Run(ctx context.Context) {
 				}
 
 				aq.logger.Info("answer : ", map[string]interface{}{
-					"answer": answer,
-					"user":   order.UID,
+					"answer":  answer,
+					"Accrual": answer.Accrual,
+					"Status":  answer.Status,
+					"user":    order.UID,
 				})
 
 				order.Accrual = answer.Accrual
@@ -135,6 +137,11 @@ func (aq *Accrual) Run(ctx context.Context) {
 				}
 				user.Current = user.Current + order.Accrual
 
+				aq.logger.Info("user : ", map[string]interface{}{
+					"user.ID":         user.ID,
+					"user.Current":    user.Current,
+					"user.Widthdrawn": user.Widthdrawn,
+				})
 				aq.DB.Save(user)
 			}
 
