@@ -58,7 +58,7 @@ func (srv *Server) BalanceGet(w http.ResponseWriter, req *http.Request) {
 
 	var user model.User
 
-	res := srv.DB.Where("uid=?", uid).First(&user)
+	res := srv.DB.Where("id=?", uid).First(&user)
 
 	if res.Error != nil {
 		err = res.Error
