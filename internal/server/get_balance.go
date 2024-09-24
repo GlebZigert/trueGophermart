@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/GlebZigert/trueGophermart/internal/config"
 	"github.com/GlebZigert/trueGophermart/internal/model"
 	"github.com/GlebZigert/trueGophermart/internal/packerr"
 )
@@ -43,22 +44,44 @@ func (srv *Server) BalanceGet(w http.ResponseWriter, req *http.Request) {
 	var err error
 	defer packerr.AddErrToReqContext(req, &err)
 
-	var resp []byte
+	//определить что за юзер
+	uid, ok := req.Context().Value(config.UIDkey).(int)
+	if !ok {
+		err = NoUidError
+
+		w.Header().Add("Content-Type", "application/json")
+		w.WriteHeader(http.StatusInternalServerError)
+
+		w.Write([]byte{})
+
+	}
+
+	var user model.User
+
+	res := srv.DB.Where("uid=?", uid).First(&user)
+
+	if res.Error != nil {
+		err = res.Error
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte{})
+
+	}
 
 	var balance model.Balance
 
-	srv.DB.FirstOrCreate(&balance)
-
-	resp, err = json.Marshal(balance)
+	balance.Current = user.Current
+	balance.Withdrawn = user.Widthdrawn
 
 	srv.logger.Info("Found balance : ", map[string]interface{}{
 		"current":   balance.Current,
 		"withdrawn": balance.Withdrawn,
 	})
 
+	resp, err := json.Marshal(balance)
+
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		w.Write(resp)
+		w.Write([]byte{})
 	}
 
 	w.Header().Add("Content-Type", "application/json")
