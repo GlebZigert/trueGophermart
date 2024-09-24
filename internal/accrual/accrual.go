@@ -133,6 +133,9 @@ func (aq *Accrual) Run(ctx context.Context) {
 				res := aq.DB.Where("id=?", order.UID).First(user)
 
 				if res.Error != nil {
+					aq.logger.Error("err find user : ", map[string]interface{}{
+						"err": res.Error,
+					})
 					continue
 				}
 				user.Current = user.Current + order.Accrual
