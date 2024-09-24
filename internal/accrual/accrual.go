@@ -128,9 +128,9 @@ func (aq *Accrual) Run(ctx context.Context) {
 
 				aq.DB.Save(order)
 
-				var user *model.User
+				var user model.User
 				//находим пользователя
-				res := aq.DB.Where("id=?", order.UID).First(user)
+				res := aq.DB.Where("id=?", order.UID).First(&user)
 
 				if res.Error != nil {
 					aq.logger.Error("err find user : ", map[string]interface{}{
