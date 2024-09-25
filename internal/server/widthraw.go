@@ -50,7 +50,7 @@ func (srv *Server) Widthraw(w http.ResponseWriter, req *http.Request) {
 
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte{})
-
+		return
 	}
 
 	var orderwidthraw OrderWidthraw
@@ -61,6 +61,7 @@ func (srv *Server) Widthraw(w http.ResponseWriter, req *http.Request) {
 
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte{})
+		return
 	}
 
 	//смотрим кто пользователь
@@ -73,7 +74,7 @@ func (srv *Server) Widthraw(w http.ResponseWriter, req *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 
 		w.Write([]byte{})
-
+		return
 	}
 
 	var user model.User

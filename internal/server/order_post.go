@@ -26,6 +26,7 @@ Content-Type: text/plain
 
 import (
 	"encoding/json"
+	"errors"
 	"io"
 	"net/http"
 	"strconv"
@@ -33,7 +34,10 @@ import (
 	"github.com/GlebZigert/trueGophermart/internal/config"
 	"github.com/GlebZigert/trueGophermart/internal/model"
 	"github.com/GlebZigert/trueGophermart/internal/packerr"
+	"github.com/theplant/luhn"
 )
+
+var errBadOrder error = errors.New("Ордер не прошел проверку по алгоритму Луна")
 
 func (srv *Server) OrderPost(w http.ResponseWriter, req *http.Request) {
 	var err error
@@ -67,6 +71,13 @@ func (srv *Server) OrderPost(w http.ResponseWriter, req *http.Request) {
 
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return // err
+	}
+
+	if !luhn.Valid(numberValue) {
+		err = errBadOrder
+		w.WriteHeader(http.StatusUnprocessableEntity)
+		w.Write([]byte{})
+		return
 	}
 
 	number := strconv.Itoa(numberValue)
@@ -105,6 +116,7 @@ func (srv *Server) OrderPost(w http.ResponseWriter, req *http.Request) {
 		}
 
 	}
+
 	order.UID = uid
 	order.Number = number
 	order.Status = model.ORDER_REGISTERED

@@ -26,7 +26,7 @@ func (srv *Server) OrderGet(w http.ResponseWriter, req *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 
 		w.Write([]byte{})
-
+		return
 	}
 
 	//искать в  дб записи заказов от этого юзера
