@@ -143,7 +143,7 @@ func (aq *Accrual) Run(ctx context.Context) {
 				aq.logger.Info("user : ", map[string]interface{}{
 					"user.ID":        user.ID,
 					"user.Current":   user.Current,
-					"user.withdrawn": user.withdrawn,
+					"user.withdrawn": user.Withdrawn,
 				})
 				aq.DB.Save(user)
 			}

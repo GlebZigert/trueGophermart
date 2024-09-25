@@ -106,7 +106,7 @@ func (srv *Server) Widthraw(w http.ResponseWriter, req *http.Request) {
 	}
 
 	user.Current = user.Current - orderwidthraw.Sum
-	user.withdrawn = user.withdrawn + orderwidthraw.Sum
+	user.Withdrawn = user.Withdrawn + orderwidthraw.Sum
 	srv.DB.Save(user)
 
 	w.WriteHeader(http.StatusOK)

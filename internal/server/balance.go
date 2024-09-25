@@ -72,7 +72,7 @@ func (srv *Server) BalanceGet(w http.ResponseWriter, req *http.Request) {
 	var balance model.Balance
 
 	balance.Current = user.Current
-	balance.Withdrawn = user.withdrawn
+	balance.Withdrawn = user.Withdrawn
 
 	srv.logger.Info("Found balance : ", map[string]interface{}{
 		"current":   balance.Current,

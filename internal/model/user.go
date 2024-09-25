@@ -5,7 +5,7 @@ type User struct {
 	Login     string  `db:"login"`
 	Password  string  `db:"password"`
 	Current   float32 `db:"current"`
-	withdrawn float32 `db:"withdrawn"`
+	Withdrawn float32 `db:"withdrawn"`
 }
 
 type UsersErr struct {
