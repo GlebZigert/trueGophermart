@@ -36,7 +36,7 @@ Content-Type: application/json
 */
 type OrderWidthraw struct {
 	Number string  `json:"order"`
-	Sum    float64 `json:"sum"`
+	Sum    float32 `json:"sum"`
 }
 
 func (srv *Server) Widthraw(w http.ResponseWriter, req *http.Request) {
@@ -106,7 +106,7 @@ func (srv *Server) Widthraw(w http.ResponseWriter, req *http.Request) {
 	}
 
 	user.Current = user.Current - orderwidthraw.Sum
-	user.Widthdrawn = user.Widthdrawn + orderwidthraw.Sum
+	user.withdrawn = user.withdrawn + orderwidthraw.Sum
 	srv.DB.Save(user)
 
 	w.WriteHeader(http.StatusOK)

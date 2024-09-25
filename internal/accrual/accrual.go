@@ -141,9 +141,9 @@ func (aq *Accrual) Run(ctx context.Context) {
 				user.Current = user.Current + order.Accrual
 
 				aq.logger.Info("user : ", map[string]interface{}{
-					"user.ID":         user.ID,
-					"user.Current":    user.Current,
-					"user.Widthdrawn": user.Widthdrawn,
+					"user.ID":        user.ID,
+					"user.Current":   user.Current,
+					"user.withdrawn": user.withdrawn,
 				})
 				aq.DB.Save(user)
 			}

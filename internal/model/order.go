@@ -6,13 +6,13 @@ type Order struct {
 	ID      int     `db:"id"`
 	UID     int     `db:"uid"`
 	Number  string  `db:"number"`
-	Accrual float64 `db:"aqrual"`
+	Accrual float32 `db:"aqrual"`
 	Status  string  `db:"status"`
 }
 
 type Answer struct {
 	Number  string  `json:"order"`
-	Accrual float64 `json:"accrual"`
+	Accrual float32 `json:"accrual"`
 	Status  string  `json:"status"`
 }
 

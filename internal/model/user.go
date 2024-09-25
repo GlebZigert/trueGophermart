@@ -1,11 +1,11 @@
 package model
 
 type User struct {
-	ID         int     `db:"id"`
-	Login      string  `db:"login"`
-	Password   string  `db:"password"`
-	Current    float64 `db:"current"`
-	Widthdrawn float64 `db:"widthdrawn"`
+	ID        int     `db:"id"`
+	Login     string  `db:"login"`
+	Password  string  `db:"password"`
+	Current   float32 `db:"current"`
+	withdrawn float32 `db:"withdrawn"`
 }
 
 type UsersErr struct {
