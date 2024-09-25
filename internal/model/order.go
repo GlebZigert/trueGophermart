@@ -1,6 +1,6 @@
 package model
 
-const ORDER_REGISTERED string = "REGISTERED"
+const ORDER_REGISTERED string = "NEW"
 
 type Order struct {
 	ID      int     `db:"id"`
