@@ -4,8 +4,8 @@ type User struct {
 	ID         int     `db:"id"`
 	Login      string  `db:"login"`
 	Password   string  `db:"password"`
-	Current    float32 `db:"current"`
-	Widthdrawn float32 `db:"widthdrawn"`
+	Current    float64 `db:"current"`
+	Widthdrawn float64 `db:"widthdrawn"`
 }
 
 type UsersErr struct {

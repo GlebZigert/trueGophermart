@@ -36,7 +36,7 @@ Content-Type: application/json
 */
 type OrderWidthraw struct {
 	Number string  `json:"order"`
-	Sum    float32 `json:"sum"`
+	Sum    float64 `json:"sum"`
 }
 
 func (srv *Server) Widthraw(w http.ResponseWriter, req *http.Request) {

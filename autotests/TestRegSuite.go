@@ -568,7 +568,7 @@ func (suite *TestRegSuite) TestHandler() {
 
 		//
 		/*
-			expectedAccrual := float32(729.98)
+			expectedAccrual := float64(729.98)
 			ctx, cancel = context.WithTimeout(context.Background(), 5*time.Second)
 			defer cancel()
 
