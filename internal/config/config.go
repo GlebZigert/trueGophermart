@@ -9,10 +9,10 @@ import (
 type key int
 
 const (
-	UserIDkey key = iota
-	JWTkey    key = iota
-	NEWkey    key = iota
-	Errkey    key = iota
+	Uidkey key = iota
+	JWTkey key = iota
+	NEWkey key = iota
+	Errkey key = iota
 	// ...
 )
 

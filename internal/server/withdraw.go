@@ -67,9 +67,9 @@ func (srv *Server) Withdraw(w http.ResponseWriter, req *http.Request) {
 
 	//смотрим кто пользователь
 
-	UserID, ok := req.Context().Value(config.UserIDkey).(int)
+	Uid, ok := req.Context().Value(config.Uidkey).(int)
 	if !ok {
-		err = ErrNoUserID
+		err = ErrNoUid
 
 		w.Header().Add("Content-Type", "application/json")
 		w.WriteHeader(http.StatusInternalServerError)
@@ -80,7 +80,7 @@ func (srv *Server) Withdraw(w http.ResponseWriter, req *http.Request) {
 
 	var user model.User
 
-	res := srv.DB.Where("id=?", UserID).First(&user)
+	res := srv.DB.Where("id=?", Uid).First(&user)
 
 	if res.Error != nil {
 		err = res.Error
@@ -111,7 +111,7 @@ func (srv *Server) Withdraw(w http.ResponseWriter, req *http.Request) {
 	user.Withdrawn = user.Withdrawn + orderwithdraw.Sum
 	srv.DB.Save(user)
 
-	srv.DB.Create(&model.Withdraw{UserID: user.ID,
+	srv.DB.Create(&model.Withdraw{Uid: user.ID,
 		Number:      orderwithdraw.Number,
 		Sum:         orderwithdraw.Sum,
 		ProcessedAt: time.Now(),
