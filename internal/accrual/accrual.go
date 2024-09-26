@@ -54,7 +54,7 @@ func (aq *Accrual) Run(ctx context.Context) {
 		//берем ордеры из БД
 
 		var orders []model.Order
-		result := aq.DB.Where("Status=?", model.ORDER_REGISTERED).Find(&orders)
+		result := aq.DB.Where("Status=?", model.OrderRegistered).Find(&orders)
 
 		if result.Error != nil {
 			aq.logger.Error("accrual : ", map[string]interface{}{
@@ -120,7 +120,7 @@ func (aq *Accrual) Run(ctx context.Context) {
 				"answer":  answer,
 				"Accrual": answer.Accrual,
 				"Status":  answer.Status,
-				"user":    order.Uid,
+				"user":    order.UID,
 			})
 
 			order.Accrual = answer.Accrual
@@ -130,7 +130,7 @@ func (aq *Accrual) Run(ctx context.Context) {
 
 			var user model.User
 			//находим пользователя
-			res := aq.DB.Where("id=?", order.Uid).First(&user)
+			res := aq.DB.Where("id=?", order.UID).First(&user)
 
 			if res.Error != nil {
 				aq.logger.Error("err find user : ", map[string]interface{}{

@@ -45,9 +45,9 @@ func (srv *Server) BalanceGet(w http.ResponseWriter, req *http.Request) {
 	defer packerr.AddErrToReqContext(req, &err)
 
 	//определить что за юзер
-	Uid, ok := req.Context().Value(config.Uidkey).(int)
+	UID, ok := req.Context().Value(config.UIDkey).(int)
 	if !ok {
-		err = ErrNoUid
+		err = ErrNoUID
 
 		w.Header().Add("Content-Type", "application/json")
 		w.WriteHeader(http.StatusInternalServerError)
@@ -59,7 +59,7 @@ func (srv *Server) BalanceGet(w http.ResponseWriter, req *http.Request) {
 
 	var user model.User
 
-	res := srv.DB.Where("id=?", Uid).First(&user)
+	res := srv.DB.Where("id=?", UID).First(&user)
 
 	if res.Error != nil {
 		err = res.Error

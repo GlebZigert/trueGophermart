@@ -10,7 +10,7 @@ import (
 	"github.com/GlebZigert/trueGophermart/internal/packerr"
 )
 
-var ErrNoUid error = errors.New("этот реквест прошел проверку в auth но в хэндлере не смог взять Uid из контекста")
+var ErrNoUID error = errors.New("этот реквест прошел проверку в auth но в хэндлере не смог взять UID из контекста")
 
 func (srv *Server) OrderGet(w http.ResponseWriter, req *http.Request) {
 	var err error
@@ -18,9 +18,9 @@ func (srv *Server) OrderGet(w http.ResponseWriter, req *http.Request) {
 	var orders []model.Order
 
 	//определить что за юзер
-	Uid, ok := req.Context().Value(config.Uidkey).(int)
+	UID, ok := req.Context().Value(config.UIDkey).(int)
 	if !ok {
-		err = ErrNoUid
+		err = ErrNoUID
 
 		w.Header().Add("Content-Type", "application/json")
 		w.WriteHeader(http.StatusInternalServerError)
@@ -31,10 +31,10 @@ func (srv *Server) OrderGet(w http.ResponseWriter, req *http.Request) {
 
 	//искать в  дб записи заказов от этого юзера
 	srv.logger.Info("Ищу номера заказов для : ", map[string]interface{}{
-		"Uid": Uid,
+		"UID": UID,
 	})
 
-	if result := srv.DB.Where("Uid = ?", Uid).Find(&orders); result.Error != nil {
+	if result := srv.DB.Where("UID = ?", UID).Find(&orders); result.Error != nil {
 
 		err = result.Error
 		w.WriteHeader(http.StatusInternalServerError)

@@ -44,9 +44,9 @@ func (srv *Server) OrderPost(w http.ResponseWriter, req *http.Request) {
 	defer packerr.AddErrToReqContext(req, &err)
 
 	//определить что за юзер
-	Uid, ok := req.Context().Value(config.Uidkey).(int)
+	UID, ok := req.Context().Value(config.UIDkey).(int)
 	if !ok {
-		err = ErrNoUid
+		err = ErrNoUID
 
 		w.Header().Add("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
@@ -83,7 +83,7 @@ func (srv *Server) OrderPost(w http.ResponseWriter, req *http.Request) {
 	number := strconv.Itoa(numberValue)
 
 	srv.logger.Info("Ищу номер заказа : ", map[string]interface{}{
-		"Uid":    Uid,
+		"UID":    UID,
 		"number": number,
 	})
 
@@ -91,10 +91,10 @@ func (srv *Server) OrderPost(w http.ResponseWriter, req *http.Request) {
 
 	result := srv.DB.Where("number = ?", number).First(&order)
 	if result.Error == nil {
-		if order.Uid == Uid {
+		if order.UID == UID {
 
 			srv.logger.Info("Заказ уже был принят : ", map[string]interface{}{
-				"Uid":    Uid,
+				"UID":    UID,
 				"number": number,
 			})
 
@@ -105,7 +105,7 @@ func (srv *Server) OrderPost(w http.ResponseWriter, req *http.Request) {
 		} else {
 
 			srv.logger.Info("Заказ уже был принят от другого пользователя : ", map[string]interface{}{
-				"Uid":    order.Uid,
+				"UID":    order.UID,
 				"number": order.Number,
 			})
 
@@ -117,9 +117,9 @@ func (srv *Server) OrderPost(w http.ResponseWriter, req *http.Request) {
 
 	}
 
-	order.Uid = Uid
+	order.UID = UID
 	order.Number = number
-	order.Status = model.ORDER_REGISTERED
+	order.Status = model.OrderRegistered
 
 	if result := srv.DB.Create(&order); result.Error != nil {
 
@@ -130,7 +130,7 @@ func (srv *Server) OrderPost(w http.ResponseWriter, req *http.Request) {
 	}
 
 	srv.logger.Info("Заказ принят : ", map[string]interface{}{
-		"Uid":    Uid,
+		"UID":    UID,
 		"number": number,
 	})
 

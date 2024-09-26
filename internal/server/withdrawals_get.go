@@ -47,9 +47,9 @@ func (srv *Server) WithdrawalsGet(w http.ResponseWriter, req *http.Request) {
 	//кто юзер
 
 	//определить что за юзер
-	Uid, ok := req.Context().Value(config.Uidkey).(int)
+	UID, ok := req.Context().Value(config.UIDkey).(int)
 	if !ok {
-		err = ErrNoUid
+		err = ErrNoUID
 
 		w.Header().Add("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
@@ -60,7 +60,7 @@ func (srv *Server) WithdrawalsGet(w http.ResponseWriter, req *http.Request) {
 	//смотрим его списания бонусов
 	var withdrawals []model.Withdraw
 
-	if result := srv.DB.Where("Uid = ?", Uid).Find(&withdrawals); result.Error != nil {
+	if result := srv.DB.Where("UID = ?", UID).Find(&withdrawals); result.Error != nil {
 
 		err = result.Error
 		w.WriteHeader(http.StatusInternalServerError)

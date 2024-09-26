@@ -1,10 +1,10 @@
 package model
 
-const ORDER_REGISTERED string = "NEW"
+const OrderRegistered string = "NEW"
 
 type Order struct {
 	ID      int     `gorm:"id"`
-	Uid     int     `gorm:"uid"`
+	UID     int     `gorm:"uid"`
 	Number  string  `gorm:"number"`
 	Accrual float32 `gorm:"aqrual"`
 	Status  string  `gorm:"status"`
