@@ -1,11 +1,11 @@
 package model
 
 type User struct {
-	ID        int     `db:"id"`
-	Login     string  `db:"login"`
-	Password  string  `db:"password"`
-	Current   float32 `db:"current"`
-	Withdrawn float32 `db:"withdrawn"`
+	ID        int     `gorm:"id"`
+	Login     string  `gorm:"login"`
+	Password  string  `gorm:"password"`
+	Current   float32 `gorm:"current"`
+	Withdrawn float32 `gorm:"withdrawn"`
 }
 
 type UsersErr struct {
