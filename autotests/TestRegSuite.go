@@ -252,7 +252,7 @@ func (suite *TestRegSuite) TestHandler() {
 		resp, err := req.Get("/api/user/orders")
 		noRespErr := suite.Assert().NoError(err, "Ошибка при попытке сделать запрос")
 		if !noRespErr {
-			suite.T().Errorf(err.Error())
+			suite.T().Errorf("err %s ", err)
 		}
 		//я должен получить ответ со статусом StatusUnauthorized о том что запрос не обработан из за отсутствия валидного ключа авторизации
 		////провожу роверку на наличие статуса StatusUnauthorized
