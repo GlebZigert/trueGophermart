@@ -1,8 +1,8 @@
 module github.com/GlebZigert/trueGophermart
 
-go 1.22.1
+go 1.23
 
-toolchain go1.22.7
+
 
 require (
 	github.com/adrianbrad/psqldocker v1.2.1
