@@ -56,7 +56,7 @@ func (mdl *Middleware) Log(h http.Handler) http.Handler {
 			responseData:   responseData,
 		}
 
-		id, ok := r.Context().Value(config.UIDkey).(int)
+		id, ok := r.Context().Value(config.UserIDkey).(int)
 		if ok {
 			mdl.logger.Info("auth: ", map[string]interface{}{
 				"id": id,
@@ -79,7 +79,7 @@ func (mdl *Middleware) Log(h http.Handler) http.Handler {
 			"path":   r.URL.Path,
 			"dt":     time.Since(t1).String(),
 			"size":   strconv.Itoa(responseData.size),
-			"UID":    id,
+			"UserID": id,
 			"status": strconv.Itoa(responseData.status),
 			"body":   responseData.body,
 		})

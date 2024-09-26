@@ -21,7 +21,7 @@ func (mdl *Middleware) Auth(h http.Handler) http.Handler {
 			"auth": authv,
 		})
 
-		id, err := mdl.auch.GetUID(authv)
+		id, err := mdl.auch.GetUserID(authv)
 
 		if err != nil {
 
@@ -33,7 +33,7 @@ func (mdl *Middleware) Auth(h http.Handler) http.Handler {
 
 		}
 		ctx := r.Context()
-		ctx = context.WithValue(ctx, config.UIDkey, id)
+		ctx = context.WithValue(ctx, config.UserIDkey, id)
 		r = r.WithContext(ctx)
 
 		h.ServeHTTP(w, r)

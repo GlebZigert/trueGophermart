@@ -120,7 +120,7 @@ func (aq *Accrual) Run(ctx context.Context) {
 				"answer":  answer,
 				"Accrual": answer.Accrual,
 				"Status":  answer.Status,
-				"user":    order.UID,
+				"user":    order.UserID,
 			})
 
 			order.Accrual = answer.Accrual
@@ -130,7 +130,7 @@ func (aq *Accrual) Run(ctx context.Context) {
 
 			var user model.User
 			//находим пользователя
-			res := aq.DB.Where("id=?", order.UID).First(&user)
+			res := aq.DB.Where("id=?", order.UserID).First(&user)
 
 			if res.Error != nil {
 				aq.logger.Error("err find user : ", map[string]interface{}{

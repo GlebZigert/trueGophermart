@@ -4,7 +4,7 @@ import "github.com/GlebZigert/trueGophermart/internal/logger"
 
 type IAuth interface {
 	BuildJWTString(id int) (string, error)
-	GetUID(tokenString string) (int, error)
+	GetUserID(tokenString string) (int, error)
 }
 
 type Middleware struct {

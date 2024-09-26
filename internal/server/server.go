@@ -13,7 +13,7 @@ import (
 
 type IAuth interface {
 	BuildJWTString(id int) (string, error)
-	GetUID(tokenString string) (int, error)
+	GetUserID(tokenString string) (int, error)
 }
 
 type Server struct {
