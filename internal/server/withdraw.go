@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
-	"strconv"
 	"time"
 
 	"github.com/GlebZigert/trueGophermart/internal/config"
@@ -111,17 +110,9 @@ func (srv *Server) Withdraw(w http.ResponseWriter, req *http.Request) {
 	user.Current = user.Current - orderwithdraw.Sum
 	user.Withdrawn = user.Withdrawn + orderwithdraw.Sum
 	srv.DB.Save(user)
-	withdraw, err := strconv.Atoi(orderwithdraw.Number)
-	if err != nil {
-		err = res.Error
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte{})
-		return
-
-	}
 
 	srv.DB.Create(&model.Withdraw{UID: user.ID,
-		Number:      withdraw,
+		Number:      orderwithdraw.Number,
 		Sum:         orderwithdraw.Sum,
 		ProcessedAt: time.Now(),
 	})
