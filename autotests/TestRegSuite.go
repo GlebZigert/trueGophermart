@@ -270,7 +270,7 @@ func (suite *TestRegSuite) TestHandler() {
 		noRespErr = suite.Assert().NoError(err, "Ошибка при попытке сделать запрос")
 
 		if !noRespErr {
-			suite.T().Errorf(err.Error())
+			suite.T().Errorf("err %s ", err)
 		}
 
 		suite.Assert().Equalf(http.StatusBadRequest, resp.StatusCode(),
@@ -296,7 +296,7 @@ func (suite *TestRegSuite) TestHandler() {
 		noRespErr = suite.Assert().NoError(err, "Ошибка при попытке сделать запрос")
 
 		if !noRespErr {
-			suite.T().Errorf(err.Error())
+			suite.T().Errorf("err %s ", err)
 		}
 
 		suite.Assert().Equalf(http.StatusOK, resp.StatusCode(),
@@ -315,7 +315,7 @@ func (suite *TestRegSuite) TestHandler() {
 		noRespErr = suite.Assert().NoError(err, "Ошибка при попытке сделать запрос")
 
 		if !noRespErr {
-			suite.T().Errorf(err.Error())
+			suite.T().Errorf("err %s ", err)
 		}
 
 		suite.Assert().Equalf(http.StatusConflict, resp.StatusCode(),
@@ -330,7 +330,7 @@ func (suite *TestRegSuite) TestHandler() {
 		resp, err = req.Get("/api/user/orders")
 		noRespErr = suite.Assert().NoError(err, "Ошибка при попытке сделать запрос")
 		if !noRespErr {
-			suite.T().Errorf(err.Error())
+			suite.T().Errorf("err %s ", err)
 		}
 		// я должен получить ответ со статусом StatusUnauthorized о том что запрос не обработан из за отсутствия валидного ключа авторизации
 		// //провожу роверку на наличие статуса StatusUnauthorized
@@ -348,7 +348,7 @@ func (suite *TestRegSuite) TestHandler() {
 		resp, err = req.Post("/api/user/login")
 		noRespErr = suite.Assert().NoError(err, "Ошибка при попытке сделать запрос")
 		if !noRespErr {
-			suite.T().Errorf(err.Error())
+			suite.T().Errorf("err %s ", err)
 		}
 		// я должен получить ответ со статусом StatusUnauthorized о том что запрос не обработан из за отсутствия валидного ключа авторизации
 		// //провожу роверку на наличие статуса StatusUnauthorized
@@ -369,7 +369,7 @@ func (suite *TestRegSuite) TestHandler() {
 		resp, err = req.Post("/api/user/login")
 		noRespErr = suite.Assert().NoError(err, "Ошибка при попытке сделать запрос")
 		if !noRespErr {
-			suite.T().Errorf(err.Error())
+			suite.T().Errorf("err %s ", err)
 		}
 		// я должен получить ответ со статусом StatusUnauthorized о том что запрос не обработан из за отсутствия валидного ключа авторизации
 		// //провожу роверку на наличие статуса StatusUnauthorized
@@ -390,7 +390,7 @@ func (suite *TestRegSuite) TestHandler() {
 		resp, err = req.Post("/api/user/login")
 		noRespErr = suite.Assert().NoError(err, "Ошибка при попытке сделать запрос")
 		if !noRespErr {
-			suite.T().Errorf(err.Error())
+			suite.T().Errorf("err %s ", err)
 		}
 		// я должен получить ответ со статусом StatusUnauthorized о том что запрос не обработан из за отсутствия валидного ключа авторизации
 		// //провожу роверку на наличие статуса StatusUnauthorized
@@ -411,7 +411,7 @@ func (suite *TestRegSuite) TestHandler() {
 		resp, err = req.Post("/api/user/login")
 		noRespErr = suite.Assert().NoError(err, "Ошибка при попытке сделать запрос")
 		if !noRespErr {
-			suite.T().Errorf(err.Error())
+			suite.T().Errorf("err %s ", err)
 		}
 		// я должен получить ответ со статусом StatusUnauthorized о том что запрос не обработан из за отсутствия валидного ключа авторизации
 		// //провожу роверку на наличие статуса StatusUnauthorized
@@ -440,7 +440,7 @@ func (suite *TestRegSuite) TestHandler() {
 		resp, err := req.Post("/api/user/login")
 		noRespErr := suite.Assert().NoError(err, "Ошибка при попытке сделать запрос")
 		if !noRespErr {
-			suite.T().Errorf(err.Error())
+			suite.T().Errorf("err %s ", err)
 		}
 
 		suite.Assert().Equalf(http.StatusOK, resp.StatusCode(), "")
@@ -457,7 +457,7 @@ func (suite *TestRegSuite) TestHandler() {
 		resp, err = req.Get("/api/user/orders")
 		noRespErr = suite.Assert().NoError(err, "Ошибка при попытке сделать запрос")
 		if !noRespErr {
-			suite.T().Errorf(err.Error())
+			suite.T().Errorf("err %s ", err)
 		}
 
 		suite.Assert().Equalf(http.StatusNoContent, resp.StatusCode(),
@@ -472,7 +472,7 @@ func (suite *TestRegSuite) TestHandler() {
 		resp, err = req.Post("/api/user/orders")
 		noRespErr = suite.Assert().NoError(err, "Ошибка при попытке сделать запрос")
 		if !noRespErr {
-			suite.T().Errorf(err.Error())
+			suite.T().Errorf("err %s ", err)
 		}
 
 		suite.Assert().Equalf(http.StatusUnauthorized, resp.StatusCode(),
@@ -488,7 +488,7 @@ func (suite *TestRegSuite) TestHandler() {
 		resp, err = req.Post("/api/user/orders")
 		noRespErr = suite.Assert().NoError(err, "Ошибка при попытке сделать запрос")
 		if !noRespErr {
-			suite.T().Errorf(err.Error())
+			suite.T().Errorf("err %s ", err)
 		}
 
 		suite.Assert().Equalf(http.StatusAccepted, resp.StatusCode(),
@@ -504,7 +504,7 @@ func (suite *TestRegSuite) TestHandler() {
 		resp, err = req.Post("/api/user/orders")
 		noRespErr = suite.Assert().NoError(err, "Ошибка при попытке сделать запрос")
 		if !noRespErr {
-			suite.T().Errorf(err.Error())
+			suite.T().Errorf("err %s ", err)
 		}
 
 		suite.Assert().Equalf(http.StatusOK, resp.StatusCode(),
@@ -525,7 +525,7 @@ func (suite *TestRegSuite) TestHandler() {
 		resp, err = req.Post("/api/user/register")
 		noRespErr = suite.Assert().NoError(err, "Ошибка при попытке сделать запрос")
 		if !noRespErr {
-			suite.T().Errorf(err.Error())
+			suite.T().Errorf("err %s ", err)
 		}
 
 		//orderNum, err := generateOrderNumber(suite.T())
@@ -545,7 +545,7 @@ func (suite *TestRegSuite) TestHandler() {
 		resp, err = req.Post("/api/user/orders")
 		noRespErr = suite.Assert().NoError(err, "Ошибка при попытке сделать запрос")
 		if !noRespErr {
-			suite.T().Errorf(err.Error())
+			suite.T().Errorf("err %s ", err)
 		}
 
 		suite.Assert().Equalf(http.StatusConflict, resp.StatusCode(),
@@ -560,7 +560,7 @@ func (suite *TestRegSuite) TestHandler() {
 		resp, err = req.Get("/api/user/orders")
 		noRespErr = suite.Assert().NoError(err, "Ошибка при попытке сделать запрос")
 		if !noRespErr {
-			suite.T().Errorf(err.Error())
+			suite.T().Errorf("err %s ", err)
 		}
 
 		suite.Assert().Equalf(http.StatusOK, resp.StatusCode(),
