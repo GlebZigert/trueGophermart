@@ -79,7 +79,7 @@ func (mdl *Middleware) Log(h http.Handler) http.Handler {
 			"path":   r.URL.Path,
 			"dt":     time.Since(t1).String(),
 			"size":   strconv.Itoa(responseData.size),
-			"userID": id,
+			"UID":    id,
 			"status": strconv.Itoa(responseData.status),
 			"body":   responseData.body,
 		})

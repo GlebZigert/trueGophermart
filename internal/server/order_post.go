@@ -91,7 +91,7 @@ func (srv *Server) OrderPost(w http.ResponseWriter, req *http.Request) {
 
 	result := srv.DB.Where("number = ?", number).First(&order)
 	if result.Error == nil {
-		if order.UserID == uid {
+		if order.UID == uid {
 
 			srv.logger.Info("Заказ уже был принят : ", map[string]interface{}{
 				"uid":    uid,
@@ -105,7 +105,7 @@ func (srv *Server) OrderPost(w http.ResponseWriter, req *http.Request) {
 		} else {
 
 			srv.logger.Info("Заказ уже был принят от другого пользователя : ", map[string]interface{}{
-				"uid":    order.UserID,
+				"uid":    order.UID,
 				"number": order.Number,
 			})
 
@@ -117,7 +117,7 @@ func (srv *Server) OrderPost(w http.ResponseWriter, req *http.Request) {
 
 	}
 
-	order.UserID = uid
+	order.UID = uid
 	order.Number = number
 	order.Status = model.ORDER_REGISTERED
 

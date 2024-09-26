@@ -17,10 +17,10 @@ type AuthController struct {
 var ErrAccessDenied = errors.New("access denied")
 
 // Claims — структура утверждений, которая включает стандартные утверждения
-// и одно пользовательское — UserID
+// и одно пользовательское — UID
 type Claims struct {
 	jwt.RegisteredClaims
-	UserID int
+	UID int
 }
 
 func NewAuth(sekretKey string, tokenExp int) *AuthController {
@@ -39,7 +39,7 @@ func (auc *AuthController) BuildJWTString(id int) (string, error) {
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * time.Duration(auc.tokenExp))),
 		},
 		// собственное утверждение
-		UserID: id,
+		UID: id,
 	})
 
 	// создаём строку токена
@@ -52,7 +52,7 @@ func (auc *AuthController) BuildJWTString(id int) (string, error) {
 	return tokenString, nil
 }
 
-func (auc *AuthController) GetUserID(tokenString string) (int, error) {
+func (auc *AuthController) GetUID(tokenString string) (int, error) {
 	claims := &Claims{}
 	token, err := jwt.ParseWithClaims(tokenString, claims,
 		func(t *jwt.Token) (interface{}, error) {
@@ -72,5 +72,5 @@ func (auc *AuthController) GetUserID(tokenString string) (int, error) {
 		return -1, packerr.NewTimeError(err)
 	}
 
-	return claims.UserID, nil
+	return claims.UID, nil
 }

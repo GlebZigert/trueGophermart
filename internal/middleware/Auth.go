@@ -21,7 +21,7 @@ func (mdl *Middleware) Auth(h http.Handler) http.Handler {
 			"auth": authv,
 		})
 
-		id, err := mdl.auch.GetUserID(authv)
+		id, err := mdl.auch.GetUID(authv)
 
 		if err != nil {
 
