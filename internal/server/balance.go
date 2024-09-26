@@ -47,7 +47,7 @@ func (srv *Server) BalanceGet(w http.ResponseWriter, req *http.Request) {
 	//определить что за юзер
 	uid, ok := req.Context().Value(config.UIDkey).(int)
 	if !ok {
-		err = NoUidError
+		err = NoUIDError
 
 		w.Header().Add("Content-Type", "application/json")
 		w.WriteHeader(http.StatusInternalServerError)
