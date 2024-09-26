@@ -12,8 +12,8 @@ type Middleware struct {
 	logger logger.Logger
 }
 
-func (m *Middleware) GetAuch() IAuth {
-	return m.auch
+func (mdl *Middleware) GetAuch() IAuth {
+	return mdl.auch
 }
 
 func NewMiddlewares(auth IAuth, logger logger.Logger) *Middleware {
