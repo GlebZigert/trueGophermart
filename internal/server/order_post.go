@@ -37,7 +37,7 @@ import (
 	"github.com/theplant/luhn"
 )
 
-var errBadOrder error = errors.New("Ордер не прошел проверку по алгоритму Луна")
+var errBadOrder error = errors.New("ордер не прошел проверку по алгоритму Луна")
 
 func (srv *Server) OrderPost(w http.ResponseWriter, req *http.Request) {
 	var err error
@@ -46,7 +46,7 @@ func (srv *Server) OrderPost(w http.ResponseWriter, req *http.Request) {
 	//определить что за юзер
 	uid, ok := req.Context().Value(config.UIDkey).(int)
 	if !ok {
-		err = NoUIDError
+		err = ErrNoUID
 
 		w.Header().Add("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
@@ -137,5 +137,4 @@ func (srv *Server) OrderPost(w http.ResponseWriter, req *http.Request) {
 	w.Header().Add("Content-Type", "application/json")
 	w.WriteHeader(http.StatusAccepted)
 	w.Write([]byte{})
-	return
 }

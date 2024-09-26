@@ -9,7 +9,7 @@ import (
 	"github.com/GlebZigert/trueGophermart/internal/packerr"
 )
 
-var Conflict *model.UsersErr = &model.UsersErr{"Конфликт: логин занят"}
+var Conflict *model.UsersErr = &model.UsersErr{Err: "Конфликт: логин занят"}
 
 func (srv *Server) Register(w http.ResponseWriter, req *http.Request) {
 

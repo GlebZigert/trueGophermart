@@ -24,7 +24,7 @@ type Server struct {
 	logger logger.Logger
 }
 
-var errNoAuthMiddleware = errors.New("В миддлеварах не определен auth")
+var errNoAuthMiddleware = errors.New("в миддлеварах не определен auth")
 
 func NewServer(db *gorm.DB, cfg *config.Config, mdl *middleware.Middleware, logger logger.Logger) (*Server, error) {
 	auch := mdl.GetAuch()

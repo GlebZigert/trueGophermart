@@ -10,7 +10,7 @@ import (
 	"github.com/GlebZigert/trueGophermart/internal/packerr"
 )
 
-var NoUIDError error = errors.New("Этот реквест прошел проверку в auth но в хэндлере не смог взять uid из контекста")
+var ErrNoUID error = errors.New("этот реквест прошел проверку в auth но в хэндлере не смог взять uid из контекста")
 
 func (srv *Server) OrderGet(w http.ResponseWriter, req *http.Request) {
 	var err error
@@ -20,7 +20,7 @@ func (srv *Server) OrderGet(w http.ResponseWriter, req *http.Request) {
 	//определить что за юзер
 	uid, ok := req.Context().Value(config.UIDkey).(int)
 	if !ok {
-		err = NoUIDError
+		err = ErrNoUID
 
 		w.Header().Add("Content-Type", "application/json")
 		w.WriteHeader(http.StatusInternalServerError)

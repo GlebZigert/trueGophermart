@@ -9,7 +9,7 @@ import (
 	"github.com/GlebZigert/trueGophermart/internal/packerr"
 )
 
-var WrongPassword *model.UsersErr = &model.UsersErr{"Неверный пароль"}
+var WrongPassword *model.UsersErr = &model.UsersErr{Err: "Неверный пароль"}
 
 func (srv *Server) Login(w http.ResponseWriter, req *http.Request) {
 

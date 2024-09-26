@@ -20,7 +20,7 @@ type OrderErr struct {
 	Err string
 }
 
-var FoundNoOrder *OrderErr = &OrderErr{"Не найдено заказов"}
+var FoundNoOrder *OrderErr = &OrderErr{Err: "Не найдено заказов"}
 
 func (e *OrderErr) Error() string {
 	return e.Err
