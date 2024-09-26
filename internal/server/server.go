@@ -51,7 +51,9 @@ func (srv *Server) Start() (err error) {
 			r.Get("/api/user/orders", srv.OrderGet)
 			r.Post("/api/user/orders", srv.OrderPost)
 			r.Get("/api/user/balance", srv.BalanceGet)
-			r.Post("/api/user/balance/withdraw", srv.Widthraw)
+			r.Post("/api/user/balance/withdraw", srv.Withdraw)
+			r.Get("/api/user/withdrawals", srv.WithdrawalsGet)
+
 		})
 
 		//в регистрацию-авторизацию не нужна аутентификация

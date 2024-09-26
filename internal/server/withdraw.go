@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
+	"time"
 
 	"github.com/GlebZigert/trueGophermart/internal/config"
 	"github.com/GlebZigert/trueGophermart/internal/model"
@@ -34,12 +35,12 @@ Content-Type: application/json
 	422 — неверный номер заказа;
 	500 — внутренняя ошибка сервера.
 */
-type OrderWidthraw struct {
+type OrderWithdraw struct {
 	Number string  `json:"order"`
 	Sum    float32 `json:"sum"`
 }
 
-func (srv *Server) Widthraw(w http.ResponseWriter, req *http.Request) {
+func (srv *Server) Withdraw(w http.ResponseWriter, req *http.Request) {
 
 	var err error
 	defer packerr.AddErrToReqContext(req, &err)
@@ -53,9 +54,9 @@ func (srv *Server) Widthraw(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	var orderwidthraw OrderWidthraw
+	var orderwithdraw OrderWithdraw
 
-	err = json.Unmarshal(body, &orderwidthraw)
+	err = json.Unmarshal(body, &orderwithdraw)
 
 	if err != nil {
 
@@ -92,13 +93,13 @@ func (srv *Server) Widthraw(w http.ResponseWriter, req *http.Request) {
 	//видим сколько бонусов хочет списать пользователь и сколько у него есть
 	srv.logger.Info("Found balance : ", map[string]interface{}{
 
-		"польхователь":    user.ID,
-		"хочет списать":   orderwidthraw.Sum,
-		"в оплату заказа": orderwidthraw.Number,
+		"пользователь":    user.ID,
+		"хочет списать":   orderwithdraw.Sum,
+		"в оплату заказа": orderwithdraw.Number,
 		"его бонусы":      user.Current,
 	})
 	//если  бонусов недостаточно
-	if user.Current < orderwidthraw.Sum {
+	if user.Current < orderwithdraw.Sum {
 		w.Header().Add("Content-Type", "application/json")
 		w.WriteHeader(http.StatusPaymentRequired)
 
@@ -106,9 +107,15 @@ func (srv *Server) Widthraw(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	user.Current = user.Current - orderwidthraw.Sum
-	user.Withdrawn = user.Withdrawn + orderwidthraw.Sum
+	user.Current = user.Current - orderwithdraw.Sum
+	user.Withdrawn = user.Withdrawn + orderwithdraw.Sum
 	srv.DB.Save(user)
+
+	srv.DB.Create(&model.Withdraw{UID: user.ID,
+		Number:      orderwithdraw.Number,
+		Sum:         orderwithdraw.Sum,
+		ProcessedAt: time.Now(),
+	})
 
 	w.WriteHeader(http.StatusOK)
 
