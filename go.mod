@@ -1,6 +1,6 @@
 module github.com/GlebZigert/trueGophermart
 
-go 1.23
+go 1.23.0
 
 
 
