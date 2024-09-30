@@ -15,7 +15,7 @@ import (
 func Run() (err error) {
 
 	cfg := config.NewConfig()
-	ctx := context.TODO()
+	ctx := context.Background()
 	logger := logger.NewLogrusLogger(cfg.FlagLogLevel, ctx)
 
 	db, err := dblayer.NewDB(cfg.DatabaseDSN)
