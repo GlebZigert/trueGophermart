@@ -95,7 +95,7 @@ func (aq *Accrual) Run(ctx context.Context) {
 			}
 
 			body, err := io.ReadAll(resp.Body)
-			resp.Body.Close()
+			defer resp.Body.Close()
 			if err != nil {
 				aq.logger.Error("accrual io.ReadAll: ", map[string]interface{}{
 					"err": err.Error(),
