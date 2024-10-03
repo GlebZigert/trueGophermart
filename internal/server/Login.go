@@ -21,14 +21,14 @@ func (srv *Server) Login(w http.ResponseWriter, req *http.Request) {
 	body, err := io.ReadAll(req.Body)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte{})
+
 		return //err
 	}
 
 	if err = json.Unmarshal(body, &user); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte{})
+
 		return // err
 	}
 
@@ -46,7 +46,7 @@ func (srv *Server) Login(w http.ResponseWriter, req *http.Request) {
 		//если не нашлось пользователя с таким логином
 		err = model.FoundNoUser
 		w.WriteHeader(http.StatusUnauthorized)
-		w.Write([]byte{})
+
 		return
 	}
 
@@ -56,7 +56,7 @@ func (srv *Server) Login(w http.ResponseWriter, req *http.Request) {
 		//если пароли несовпадают
 		err = WrongPassword
 		w.WriteHeader(http.StatusUnauthorized)
-		w.Write([]byte{})
+
 		return
 	}
 
@@ -66,6 +66,5 @@ func (srv *Server) Login(w http.ResponseWriter, req *http.Request) {
 	w.Header().Add("Authorization", string(jwt))
 	//ставлю статус 200
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte{})
 
 }

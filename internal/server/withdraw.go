@@ -50,7 +50,7 @@ func (srv *Server) Withdraw(w http.ResponseWriter, req *http.Request) {
 	if err != nil {
 
 		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte{})
+
 		return
 	}
 
@@ -61,7 +61,7 @@ func (srv *Server) Withdraw(w http.ResponseWriter, req *http.Request) {
 	if err != nil {
 
 		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte{})
+
 		return
 	}
 
@@ -74,7 +74,6 @@ func (srv *Server) Withdraw(w http.ResponseWriter, req *http.Request) {
 		w.Header().Add("Content-Type", "application/json")
 		w.WriteHeader(http.StatusInternalServerError)
 
-		w.Write([]byte{})
 		return
 	}
 
@@ -87,7 +86,7 @@ func (srv *Server) Withdraw(w http.ResponseWriter, req *http.Request) {
 	if res.Error != nil {
 		err = res.Error
 		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte{})
+
 		return
 
 	}
@@ -105,7 +104,6 @@ func (srv *Server) Withdraw(w http.ResponseWriter, req *http.Request) {
 		w.Header().Add("Content-Type", "application/json")
 		w.WriteHeader(http.StatusPaymentRequired)
 
-		w.Write([]byte{})
 		return
 	}
 
@@ -121,7 +119,5 @@ func (srv *Server) Withdraw(w http.ResponseWriter, req *http.Request) {
 	})
 
 	w.WriteHeader(http.StatusOK)
-
-	w.Write([]byte{})
 
 }

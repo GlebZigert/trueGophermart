@@ -50,7 +50,7 @@ func (srv *Server) OrderPost(w http.ResponseWriter, req *http.Request) {
 
 		w.Header().Add("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte{})
+
 		return
 	}
 
@@ -62,7 +62,7 @@ func (srv *Server) OrderPost(w http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		w.Header().Add("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte{})
+
 		return
 
 	}
@@ -76,7 +76,7 @@ func (srv *Server) OrderPost(w http.ResponseWriter, req *http.Request) {
 	if !luhn.Valid(numberValue) {
 		err = errBadOrder
 		w.WriteHeader(http.StatusUnprocessableEntity)
-		w.Write([]byte{})
+
 		return
 	}
 
@@ -100,7 +100,7 @@ func (srv *Server) OrderPost(w http.ResponseWriter, req *http.Request) {
 
 			w.Header().Add("Content-Type", "application/json")
 			w.WriteHeader(http.StatusOK)
-			w.Write([]byte{})
+
 			return
 		} else {
 
@@ -111,7 +111,7 @@ func (srv *Server) OrderPost(w http.ResponseWriter, req *http.Request) {
 
 			w.Header().Add("Content-Type", "application/json")
 			w.WriteHeader(http.StatusConflict)
-			w.Write([]byte{})
+
 			return
 		}
 
@@ -125,7 +125,7 @@ func (srv *Server) OrderPost(w http.ResponseWriter, req *http.Request) {
 
 		err = Conflict
 		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte{})
+
 		return
 	}
 
@@ -136,5 +136,5 @@ func (srv *Server) OrderPost(w http.ResponseWriter, req *http.Request) {
 
 	w.Header().Add("Content-Type", "application/json")
 	w.WriteHeader(http.StatusAccepted)
-	w.Write([]byte{})
+
 }

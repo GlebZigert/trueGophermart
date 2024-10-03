@@ -28,7 +28,6 @@ func (mdl *Middleware) Auth(h http.Handler) http.Handler {
 			w.Header().Add("Content-Type", "application/json")
 			w.WriteHeader(http.StatusUnauthorized)
 
-			w.Write([]byte{})
 			return
 
 		}

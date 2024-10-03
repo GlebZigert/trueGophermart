@@ -21,14 +21,14 @@ func (srv *Server) Register(w http.ResponseWriter, req *http.Request) {
 	body, err := io.ReadAll(req.Body)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte{})
+
 		return //err
 	}
 
 	if err = json.Unmarshal(body, &user); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte{})
+
 		return // err
 	}
 
@@ -48,7 +48,7 @@ func (srv *Server) Register(w http.ResponseWriter, req *http.Request) {
 		//поднять ошибку о конфликте
 		err = Conflict
 		w.WriteHeader(http.StatusConflict)
-		w.Write([]byte{})
+
 		return
 	}
 
@@ -56,7 +56,7 @@ func (srv *Server) Register(w http.ResponseWriter, req *http.Request) {
 
 		err = Conflict
 		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte{})
+
 		return
 	}
 
@@ -65,5 +65,5 @@ func (srv *Server) Register(w http.ResponseWriter, req *http.Request) {
 	w.Header().Add("Authorization", string(jwt))
 	//ставлю статус 200
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte{})
+
 }

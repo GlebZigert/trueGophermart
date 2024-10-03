@@ -53,7 +53,7 @@ func (srv *Server) WithdrawalsGet(w http.ResponseWriter, req *http.Request) {
 
 		w.Header().Add("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte{})
+
 		return
 	}
 
@@ -65,7 +65,6 @@ func (srv *Server) WithdrawalsGet(w http.ResponseWriter, req *http.Request) {
 		err = result.Error
 		w.WriteHeader(http.StatusInternalServerError)
 
-		w.Write([]byte{})
 		return
 	}
 
@@ -74,7 +73,6 @@ func (srv *Server) WithdrawalsGet(w http.ResponseWriter, req *http.Request) {
 		err = model.FoundNoOrder
 		w.WriteHeader(http.StatusNoContent)
 
-		w.Write([]byte{})
 		return
 	}
 
