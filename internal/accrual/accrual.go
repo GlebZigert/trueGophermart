@@ -141,9 +141,12 @@ func (aq *Accrual) GetAccrual(order model.Order) {
 
 	aq.DB.Save(order)
 
-	var user model.User
+	user := model.NewUser(order.UID)
+	user.Lock()
+	defer user.Unlock()
 	//находим пользователя
-	res := aq.DB.Where("id=?", order.UID).First(&user)
+
+	res := aq.DB.Where("id=?", order.UID).First(user)
 
 	if res.Error != nil {
 		aq.logger.Error("err find user : ", map[string]interface{}{

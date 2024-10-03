@@ -78,9 +78,11 @@ func (srv *Server) Withdraw(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	var user model.User
+	user := model.NewUser(UID)
+	user.Lock()
+	defer user.Unlock()
 
-	res := srv.DB.Where("id=?", UID).First(&user)
+	res := srv.DB.Where("id=?", UID).First(user)
 
 	if res.Error != nil {
 		err = res.Error
@@ -109,6 +111,7 @@ func (srv *Server) Withdraw(w http.ResponseWriter, req *http.Request) {
 
 	user.Current = user.Current - orderwithdraw.Sum
 	user.Withdrawn = user.Withdrawn + orderwithdraw.Sum
+
 	srv.DB.Save(user)
 
 	srv.DB.Create(&model.Withdraw{UID: user.ID,
