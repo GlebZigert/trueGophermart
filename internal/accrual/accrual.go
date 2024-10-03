@@ -49,105 +49,114 @@ func (aq *Accrual) Run(ctx context.Context) {
 	ticker := time.NewTicker(time.Second)
 	aq.logger.Info("accrual --> ", nil)
 	for {
+		select {
 
-		<-ticker.C
-		//берем ордеры из БД
+		case <-ctx.Done():
+			return
 
-		var orders []model.Order
-		result := aq.DB.Where("Status=?", model.OrderRegistered).Find(&orders)
+		case <-ticker.C:
+			//берем ордеры из БД
 
-		if result.Error != nil {
-			aq.logger.Error("accrual : ", map[string]interface{}{
-				"err": result.Error,
-			})
-			continue
+			var orders []model.Order
+			result := aq.DB.Where("Status=?", model.OrderRegistered).Find(&orders)
 
-		}
-
-		if len(orders) == 0 {
-			continue
-		}
-
-		aq.logger.Info("Взял в обработку : ", map[string]interface{}{
-			"orders": orders,
-		})
-
-		for _, order := range orders {
-			req := aq.cfg.AccrualAddress + "/api/orders/" + order.Number
-			aq.logger.Info("accrual : ", map[string]interface{}{
-				"req": req,
-			})
-			resp, err := http.Get(req)
-
-			if err != nil {
-				aq.logger.Error("accrual http.Get(req): ", map[string]interface{}{
-					"err": err.Error(),
-				})
-				continue
-			}
-
-			aq.logger.Info("accrual : ", map[string]interface{}{
-				"resp": resp,
-			})
-
-			if resp.StatusCode != http.StatusOK {
-				continue
-			}
-
-			body, err := io.ReadAll(resp.Body)
-			resp.Body.Close()
-			if err != nil {
-				aq.logger.Error("accrual io.ReadAll: ", map[string]interface{}{
-					"err": err.Error(),
+			if result.Error != nil {
+				aq.logger.Error("accrual : ", map[string]interface{}{
+					"err": result.Error,
 				})
 				continue
 
 			}
 
-			var answer model.Answer
-
-			err = json.Unmarshal(body, &answer)
-
-			if err != nil {
-				aq.logger.Error("accrual json.Unmarshal: ", map[string]interface{}{
-					"err": err.Error(),
-				})
-				continue
-
-			}
-
-			aq.logger.Info("answer : ", map[string]interface{}{
-				"answer":  answer,
-				"Accrual": answer.Accrual,
-				"Status":  answer.Status,
-				"user":    order.UID,
-			})
-
-			order.Accrual = answer.Accrual
-			order.Status = answer.Status
-
-			aq.DB.Save(order)
-
-			var user model.User
-			//находим пользователя
-			res := aq.DB.Where("id=?", order.UID).First(&user)
-
-			if res.Error != nil {
-				aq.logger.Error("err find user : ", map[string]interface{}{
-					"err": res.Error,
-				})
+			if len(orders) == 0 {
 				continue
 			}
-			user.Current = user.Current + order.Accrual
 
-			aq.logger.Info("user : ", map[string]interface{}{
-				"user.ID":        user.ID,
-				"user.Current":   user.Current,
-				"user.withdrawn": user.Withdrawn,
+			aq.logger.Info("Взял в обработку : ", map[string]interface{}{
+				"orders": orders,
 			})
-			aq.DB.Save(user)
+
+			for _, order := range orders {
+				aq.GetAccrual(order)
+			}
 		}
 
 	}
 
+}
+
+func (aq *Accrual) GetAccrual(order model.Order) {
+	req := aq.cfg.AccrualAddress + "/api/orders/" + order.Number
+	aq.logger.Info("accrual : ", map[string]interface{}{
+		"req": req,
+	})
+	resp, err := http.Get(req)
+
+	if err != nil {
+		aq.logger.Error("accrual http.Get(req): ", map[string]interface{}{
+			"err": err.Error(),
+		})
+		return
+	}
+
+	aq.logger.Info("accrual : ", map[string]interface{}{
+		"resp": resp,
+	})
+
+	if resp.StatusCode != http.StatusOK {
+		return
+	}
+
+	body, err := io.ReadAll(resp.Body)
+	resp.Body.Close()
+	if err != nil {
+		aq.logger.Error("accrual io.ReadAll: ", map[string]interface{}{
+			"err": err.Error(),
+		})
+		return
+
+	}
+
+	var answer model.Answer
+
+	err = json.Unmarshal(body, &answer)
+
+	if err != nil {
+		aq.logger.Error("accrual json.Unmarshal: ", map[string]interface{}{
+			"err": err.Error(),
+		})
+		return
+
+	}
+
+	aq.logger.Info("answer : ", map[string]interface{}{
+		"answer":  answer,
+		"Accrual": answer.Accrual,
+		"Status":  answer.Status,
+		"user":    order.UID,
+	})
+
+	order.Accrual = answer.Accrual
+	order.Status = answer.Status
+
+	aq.DB.Save(order)
+
+	var user model.User
+	//находим пользователя
+	res := aq.DB.Where("id=?", order.UID).First(&user)
+
+	if res.Error != nil {
+		aq.logger.Error("err find user : ", map[string]interface{}{
+			"err": res.Error,
+		})
+		return
+	}
+	user.Current = user.Current + order.Accrual
+
+	aq.logger.Info("user : ", map[string]interface{}{
+		"user.ID":        user.ID,
+		"user.Current":   user.Current,
+		"user.withdrawn": user.Withdrawn,
+	})
+	aq.DB.Save(user)
 }
