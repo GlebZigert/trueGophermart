@@ -110,13 +110,33 @@ func (srv *Server) Withdraw(w http.ResponseWriter, req *http.Request) {
 	user.Current = user.Current - orderwithdraw.Sum
 	user.Withdrawn = user.Withdrawn + orderwithdraw.Sum
 
-	srv.DB.Save(user)
+	txn := srv.DB.Begin()
 
-	srv.DB.Create(&model.Withdraw{UID: user.ID,
+	if txn.Error != nil {
+		err = txn.Error
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	err = srv.DB.Create(&model.Withdraw{UID: user.ID,
 		Number:      orderwithdraw.Number,
 		Sum:         orderwithdraw.Sum,
 		ProcessedAt: time.Now(),
-	})
+	}).Error
+
+	if err != nil {
+		txn.Rollback()
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	err = srv.DB.Save(user).Error
+
+	if err != nil {
+		txn.Rollback()
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 
 	w.WriteHeader(http.StatusOK)
 
